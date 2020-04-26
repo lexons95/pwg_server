@@ -13,35 +13,35 @@ const userSchema = new Schema({
   tokenCount: Number 
 },{timestamps: true});
 
-userSchema.statics.readUsers = async function(obj) {
-    let filterResult = {};
-    let sorterResult = {};
-    let skipResult = 0;
-    let limitResult = 0;
+userSchema.static('getUsers', function(obj = {}) {
+  let filterResult = {};
+  let sorterResult = {};
+  let skipResult = 0;
+  let limitResult = 0;
 
-    if (!Object.entries(obj).length === 0 || obj.constructor === Object) {
-        
-        filterResult = obj.filter ? obj.filter : {};
-        let sorter = obj.sorter ? obj.sorter : {};
-        sorterResult = Object.assign({},sorter);
+  if (!Object.entries(obj).length === 0 || obj.constructor === Object) {
+      
+      filterResult = obj.filter ? obj.filter : {};
+      let sorter = obj.sorter ? obj.sorter : {};
+      sorterResult = Object.assign({},sorter);
 
-        skipResult = obj.skip ? obj.skip : 0;
-        limitResult = obj.limit ? obj.limit : 0;
+      skipResult = obj.skip ? obj.skip : 0;
+      limitResult = obj.limit ? obj.limit : 0;
 
-        const orderBy = {
-            "desc": -1,
-            "acs": 1
-        }
-        let sorterKeys = Object.keys(sorter);
-        sorterKeys.map(aKey=>{
-            sorterResult[aKey] = orderBy[aKey];
-        })
-    }
-    return await this.find(filterResult).sort(sorterResult).skip(skipResult).limit(limitResult);
-}
+      const orderBy = {
+          "desc": -1,
+          "acs": 1
+      }
+      let sorterKeys = Object.keys(sorter);
+      sorterKeys.map(aKey=>{
+          sorterResult[aKey] = orderBy[aKey];
+      })
+  }
+  return this.find(filterResult).sort(sorterResult).skip(skipResult).limit(limitResult);
+});
 
-userSchema.statics.findOneOrCreate = async function(user) {
-    let newUser = user;
+userSchema.static('findOneOrCreate', async function(obj = null) {
+  let newUser = obj;
     let response = {
         success: false,
         message: "",
@@ -51,7 +51,7 @@ userSchema.statics.findOneOrCreate = async function(user) {
     if (newUser && newUser.username && newUser.password) {
         let findPromise = this.findOne({username: newUser.username});
         await findPromise.then( async (result, error) => {
-            console.log("in findone")
+            // console.log("in findone")
             if (error) {
                 response = {
                     success: false,
@@ -63,14 +63,12 @@ userSchema.statics.findOneOrCreate = async function(user) {
                 if (result) {
                     response = {
                         success: false,
-                        message: "data found, cannot create",
+                        message: "duplicate data found, cannot create",
                         data: null
                     }
                 }
                 else {
-                    let newUserWithRole = Object.assign({},newUser,{role: "CUSTOMER"})
-                    console.log(newUserWithRole)
-                    let createPromise = this.create(newUserWithRole);
+                    let createPromise = this.create(newUser);
                     await createPromise.then((result, error) => {
                         if (error) {
                             response = {
@@ -80,7 +78,6 @@ userSchema.statics.findOneOrCreate = async function(user) {
                             }
                         }
                         else {
-                            console.log(result)
                             response = {
                                 success: true,
                                 message: "data created",
@@ -91,34 +88,6 @@ userSchema.statics.findOneOrCreate = async function(user) {
                 }
             }
         })     
-        
-        // let filter = {
-        //     username: newUser.username
-        // }
-        // let findOrCreatePromise = this.findOneAndUpdate(
-        //     filter,
-        //     newUser,
-        //     {
-        //         new: true,
-        //         upsert: true
-        //     }
-        // );
-        // await findOrCreatePromise.then((result, error) => {
-        //     if (error) {
-        //         response = {
-        //             success: false,
-        //             message: "error in create",
-        //             data: error
-        //         }
-        //     }
-        //     else {
-        //         response = {
-        //             success: true,
-        //             message: "data found or created",
-        //             data: result
-        //         }
-        //     }
-        // })
     }
     else {
         response = {
@@ -129,7 +98,7 @@ userSchema.statics.findOneOrCreate = async function(user) {
     }
     
     return response;
-}
+});
 
 userSchema.statics.updateUser = async function(user) {
 
@@ -205,6 +174,109 @@ userSchema.statics.findOneUser = async function(obj) {
     return response;
 }
 
+userSchema.static('authenticate', async function(obj = {}) {
+  let response = {
+    success: false,
+    message: "",
+    data: {}
+  }
+  let user = obj;
+  let findPromise = await this.findOne({username: user.username});
+  console.log("findPromise",findPromise)
+  if (findPromise) {
+    let matchPassword = await findPromise.validatePassword(user.password)
+    // let matchPassword = await bcrypt.compare(user.password, this.password);
+    console.log("matchPassword",matchPassword)
+    if (matchPassword) {
+      response = {
+        success: true,
+        message: "Success: User found",
+        data: findPromise
+      }
+    }
+    else {
+      response = {
+        success: false,
+        message: "Error: password not match",
+        data: result
+      }
+    }
+    // matchPassword.then((err, result) => {
+    //    if (err) {
+    //     response = {
+    //       success: false,
+    //       message: "Error: password checking error",
+    //       data: err
+    //     }
+    //    }
+    //    else {
+    //       if (result) {
+    //         response = {
+    //           success: true,
+    //           message: "Success: User found",
+    //           data: userFound
+    //         }
+    //       }
+    //       else {
+    //         response = {
+    //           success: false,
+    //           message: "Error: password not match",
+    //           data: result
+    //         }
+    //       }
+    //    }
+    // });
+  }
+  else {
+    response = {
+      success: false,
+      message: "Error: user not found",
+      data: error
+    }
+  }
+
+
+  // findPromise.then(async (userFound, error) => {
+  //   if (error) {
+  //       response = {
+  //           success: false,
+  //           message: "Error: user not found",
+  //           data: error
+  //       }
+  //   }
+  //   else {
+  //     let matchPassword = await bcrypt.compare(password, this.password);
+  //     matchPassword.then((err, result2) => {
+  //        if (err) {
+  //         response = {
+  //           success: false,
+  //           message: "Error: password checking error",
+  //           data: err
+  //         }
+  //        }
+  //        else {
+  //           if (result2) {
+  //             response = {
+  //               success: true,
+  //               message: "Success: User found",
+  //               data: userFound
+  //             }
+  //           }
+  //           else {
+  //             response = {
+  //               success: false,
+  //               message: "Error: password not match",
+  //               data: result2
+  //             }
+  //           }
+  //        }
+  //     });
+  //   }
+  // });
+
+  return response;
+});
+
 userSchema.methods.validatePassword = async function(password) {
     return await bcrypt.compare(password, this.password);
 };
@@ -212,7 +284,7 @@ userSchema.methods.validatePassword = async function(password) {
 const User = mongoose.model('User', userSchema); 
 
 export default {
-  model: mongoose.model('User', userSchema),
+  model: User,
   schema: userSchema,
   User: User
 };

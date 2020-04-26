@@ -11,8 +11,10 @@ const schema = gql`
     updateUser(user: JSONObject!): Response!
     deleteUser(id: String!): Response!
 
-    loginUser(ser: JSONObject!): Response!
+    loginUser(user: JSONObject!): Response!
     changeUserPassword(user: JSONObject!): Response!
+    login(user: JSONObject): Response
+    logout: Response
   }
 
   type User {
@@ -21,6 +23,7 @@ const schema = gql`
     password: String!,
     email: String,
     role: String,,
+    config_id: String,
     profile: UserProfile,
     tokenCount: Float
   }

@@ -1,7 +1,9 @@
 import { gql } from 'apollo-server-express';
 
-//import productSchema from './product';
+import productSchema from './product';
 import userSchema from './user';
+import inventorySchema from './inventory';
+
 
 const linkSchema = gql`
     scalar JSON
@@ -29,6 +31,7 @@ const linkSchema = gql`
 
 export default [
     linkSchema,
-    //productSchema,
-    userSchema
+    userSchema,
+    productSchema,
+    inventorySchema
 ];

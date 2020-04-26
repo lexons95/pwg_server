@@ -3,24 +3,26 @@ import { gql } from 'apollo-server-express';
 const schema = gql`
   extend type Query {
     products(filter: JSONObject): [Product]!
-    product(id: String!): Product
+    product(_id: String!): Product
   }
   extend type Mutation {
     createProduct(product: JSONObject!): Response!
     createProducts(products: [JSONObject!]!): Response!
     updateProduct(product: JSONObject!): Response!
-    deleteProduct(id: String!): Response!
+    deleteProduct(_id: String!): Response!
+    updateProductPublish(ids: [String!], published: Boolean!): Response!
+    testUploadImage: String
   }
 
   type Product {
     _id: String
-    dateCreated: Date
-    dateUpdated: Date
+    createdAt: Date
+    updatedAt: Date
     name: String!
     description: String
-    variant: JSONObject
+    variants: JSONObject
     published: Boolean!
-    images: [Image]!    
+    images: [JSONObject]!    
   }
 
   type Image {
@@ -29,8 +31,5 @@ const schema = gql`
     description: String
     fav: Boolean
   }
-
-}
 `;
-
 export default schema;

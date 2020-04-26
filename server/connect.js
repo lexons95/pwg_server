@@ -13,8 +13,7 @@ const clientOption = {
 const option = { useNewUrlParser: true };
 
 const initDbConnection = () => {
-  const db = mongoose.createConnection(CONNECTION_URL, clientOption);
-
+  const db = mongoose.createConnection(CONNECTION_URL, option);
   db.on("error", console.error.bind(console, "MongoDB Connection Error>> : "));
   db.once("open", function() {
     console.log("client MongoDB Connection ok!");

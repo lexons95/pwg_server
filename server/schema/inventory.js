@@ -2,24 +2,31 @@ import { gql } from 'apollo-server-express';
 
 const schema = gql`
   extend type Query {
-    inventory(productId: String!): [Inventory]!
+    inventory(filter: JSONObject): [Inventory]!
   }
   extend type Mutation {
     createInventory(inventory: JSONObject!): Response!
     updateInventory(inventory: JSONObject!): Response!
     deleteInventory(id: String!): Response!
+
+    bulkUpdateInventory(inventory: [JSONObject!]): Response!
+    updateInventoryPublish(ids: [String!], published: Boolean!): Response!
+    editInventory(productId: String!, inventory: [JSONObject!]): Response!
   }
 
   type Inventory {
     _id: String
-    dateCreated: Date
-    dateUpdated: Date
-    sku: String!
+    createdAt: Date
+    updatedAt: Date
+    sku: String
     price: Float!
-    variant: [JSONObject]
+    onSale: Boolean
+    salePrice: Float
+    stock: Int!
+    variants: JSONObject
     description: String
     published: Boolean!
-    productId: String
+    productId: String!
   }
 `;
 
