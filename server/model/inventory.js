@@ -81,14 +81,23 @@ inventorySchema.static('bulkUpdate', async function(obj = {}) {
       })
     }
   }
-  console.log('bulkUpdateArray',bulkUpdateArray)
-  await this.bulkWrite(bulkUpdateArray).then(res => {
+
+  if (bulkUpdateArrayl.length > 0) {
+    await this.bulkWrite(bulkUpdateArray).then(res => {
+      response = {
+        success: true,
+        message: "",
+        data: res
+      }
+    });
+  }
+  else {
     response = {
       success: true,
-      message: "",
-      data: res
+      message: "no operations",
+      data: {}
     }
-  });
+  }
   return response;
 })
 
