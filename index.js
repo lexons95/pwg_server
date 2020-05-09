@@ -52,7 +52,7 @@ const run = async () => {
   // app.use(cors(corsOptions));
   app.use(cors());
 
-  server.applyMiddleware({ app });
+  server.applyMiddleware({ app, cors: true });
 // console.log("initDbConnection",connect.initDbConnection)
   global.connection = connect.initDbConnection();
   app.listen({ port: PORT }, () =>
