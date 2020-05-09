@@ -41,13 +41,21 @@ const run = async () => {
   });
 
   const WHITE_LIST = [`http://localhost:${PORT}`, 'http://localhost:3003']
-  if (process.env.WHITE_LIST) {
-    WHITE_LIST.push(process.env.WHITE_LIST)
-  }
+  // if (process.env.WHITE_LIST) {
+  //   WHITE_LIST.push(process.env.WHITE_LIST)
+  // }
   const corsOptions = {
-    origin: "*",
-    credentials: true,
-    //saveUninitialized: true
+    origin: (origin, callback) => {
+    
+      if (WHITE_LIST.indexOf(origin) !== -1) {
+          callback(null, true)
+      } else {
+          // callback(new Error("Not allowed by CORS"))
+          callback(null, true)
+
+      }
+  },
+    credentials: true
   };
   app.use(cors(corsOptions));
   // app.use(cors());
