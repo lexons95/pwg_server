@@ -5,11 +5,21 @@ import qiniuAPI from '../utils/qiniuAPI';
 const { Schema } = mongoose;
 
 const productSchema = new Schema({
-  name: String,
-  description: String,
-  variants: Object,
-  published: Boolean,
-  images: Array
+    name: String,
+    description: String,
+    category: {
+        type: Array,
+        default: []
+    },
+    variants: Object,
+    published: {
+        type: Boolean,
+        default: false
+    },
+    images: {
+        type: Array,
+        default: []
+    }
 },{timestamps: true});
 
 productSchema.static('getProducts', function(filterObj = {}) {

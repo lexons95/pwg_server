@@ -2,7 +2,7 @@ import { gql } from 'apollo-server-express';
 
 const schema = gql`
   extend type Query {
-    products(filter: JSONObject): [Product]!
+    products(filter: JSONObject, configId: String): [Product]!
     product(_id: String!): Product
   }
   extend type Mutation {
@@ -11,7 +11,6 @@ const schema = gql`
     updateProduct(product: JSONObject!): Response!
     deleteProduct(_id: String!): Response!
     updateProductPublish(ids: [String!], published: Boolean!): Response!
-    testUploadImage: String
   }
 
   type Product {
@@ -20,6 +19,7 @@ const schema = gql`
     updatedAt: Date
     name: String!
     description: String
+    category: [JSONObject]
     variants: JSONObject
     published: Boolean!
     images: [JSONObject]!    

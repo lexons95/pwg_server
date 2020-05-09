@@ -2,7 +2,7 @@ import { gql } from 'apollo-server-express';
 
 const schema = gql`
   extend type Query {
-    inventory(filter: JSONObject): [Inventory]!
+    inventory(filter: JSONObject, configId: String): [Inventory]!
   }
   extend type Mutation {
     createInventory(inventory: JSONObject!): Response!

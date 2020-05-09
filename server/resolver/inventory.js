@@ -1,12 +1,12 @@
-import mongoose from 'mongoose';
 import { AuthenticationError } from 'apollo-server-express';
 import InventoryModel from '../model/inventory';
+import { editorOnly } from '../utils/authentication';
 
 const resolvers = {
   Query: {
     inventory: async (_, args=null, context) => {
       let loggedInUser = context.req.user;
-      let dbName = loggedInUser.config_id;
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       const db_base = await global.connection.useDb(dbName);
       const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
 
@@ -15,9 +15,9 @@ const resolvers = {
       
   },
   Mutation: {
-    bulkUpdateInventory: async (_, args={}, context) => {
+    bulkUpdateInventory: editorOnly( async (_, args={}, context) => {
       let loggedInUser = context.req.user;
-      let dbName = loggedInUser.config_id;
+      let dbName = loggedInUser.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
         const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
@@ -30,10 +30,10 @@ const resolvers = {
         message: "user config id not found",
         data: {}
       };
-    },
-    updateInventoryPublish: async (_, args={}, context) => {
+    }),
+    updateInventoryPublish: editorOnly( async (_, args={}, context) => {
       let loggedInUser = context.req.user;
-      let dbName = loggedInUser.config_id;
+      let dbName = loggedInUser.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
         const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
@@ -46,10 +46,10 @@ const resolvers = {
         message: "user config id not found",
         data: {}
       };
-    }
+    })
     // createProduct: async (_, args={}, context) => {
     //   let loggedInUser = context.req.user;
-    //   let dbName = loggedInUser.config_id;
+    //   let dbName = loggedInUser.configId;
     //   if (dbName) {
     //     const db_base = await global.connection.useDb(dbName);
     //     const collection_product = await db_base.model("Product",ProductModel.schema,'product');
@@ -66,7 +66,7 @@ const resolvers = {
     // },
     // updateProduct: async (_, args={}, context) => {
     //   let loggedInUser = context.req.user;
-    //   let dbName = loggedInUser.config_id;
+    //   let dbName = loggedInUser.configId;
     //   if (dbName) {
     //     const db_base = await global.connection.useDb(dbName);
     //     const collection_product = await db_base.model("Product",ProductModel.schema,'product');
@@ -83,7 +83,7 @@ const resolvers = {
     // },
     // deleteProduct: async (_, args={}, context) => {
     //   let loggedInUser = context.req.user;
-    //   let dbName = loggedInUser.config_id;
+    //   let dbName = loggedInUser.configId;
     //   if (dbName || args._id) {
     //     const db_base = await global.connection.useDb(dbName);
     //     const collection_product = await db_base.model("Product",ProductModel.schema,'product');

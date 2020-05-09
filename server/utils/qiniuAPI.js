@@ -1,47 +1,96 @@
 import qiniu from 'qiniu';
 
-const qiniuAPI = () => {
-  var accessKey = '1onu7yWhC-cnKDKXpXb9qFTYLDXIIBtVGNOY_4i3';
-  var secretKey = '5fx73jAMgIi3CVSryCNL4YxuRxuRne4bHy_vWQHO';
-  var mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
+const qiniuAPI = (configId = null) => {
+  // store keys outside
+  const accessKey = '1onu7yWhC-cnKDKXpXb9qFTYLDXIIBtVGNOY_4i3';
+  const secretKey = '5fx73jAMgIi3CVSryCNL4YxuRxuRne4bHy_vWQHO';
+  const mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
 
-  var options = {
-    scope: 'pwg-saas-images',
-    //expires: 7200
-    //returnBody: '{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)"}',
-    //callbackBodyType: 'application/json'
-  };
-  var putPolicy = new qiniu.rs.PutPolicy(options);
-  var uploadToken = putPolicy.uploadToken(mac);
-
-  var config = new qiniu.conf.Config();
-  config.zone = qiniu.zone.Zone_z0;
-
-  var localFile = "/Users/jemy/Documents/qiniu.mp4";
-  var formUploader = new qiniu.form_up.FormUploader(config);
-  var putExtra = new qiniu.form_up.PutExtra();
-  var key='test.png';
+  // bucket based on userId
+  const bucket = configId;
 
   return {
-    upload: () => {
-      formUploader.putFile(uploadToken, key, localFile, putExtra, function(respErr,
-        respBody, respInfo) {
-        if (respErr) {
-          throw respErr;
+    getToken: () => {
+      const options = {
+        scope: bucket,
+        expires: 3600 * 24
+        //returnBody: '{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)"}',
+        //callbackBodyType: 'application/json'
+      };
+      const putPolicy = new qiniu.rs.PutPolicy(options);
+      const uploadToken = putPolicy.uploadToken(mac);
+      let response = {
+        success: false,
+        message: "Failed to get token",
+        data: {}
+      };
+    
+      if (uploadToken) {
+        response = {
+          success: true,
+          message: "Get token success",
+          data: uploadToken
         }
-        if (respInfo.statusCode == 200) {
-          console.log(respBody);
-        } else {
-          console.log(respInfo.statusCode);
-          console.log(respBody);
+      }
+      return response;
+    },
+    batchDelete: async (images) => {
+      var config = new qiniu.conf.Config();
+      config.zone = qiniu.zone.Zone_z0;
+      var bucketManager = new qiniu.rs.BucketManager(mac, config);
+
+      let deleteOperations = [];
+      images.map((anImage)=>{
+        deleteOperations.push(
+          qiniu.rs.deleteOp(bucket, anImage)
+        )
+      })
+
+      return new Promise((resolve, reject) => {
+        if (deleteOperations.length > 0) {
+          bucketManager.batch(deleteOperations, function(err, respBody, respInfo) {
+            if (err) {
+              reject({
+                success: false,
+                message: "Failed to delete",
+                data: {}
+              })
+            } else {
+              // 200 is success, 298 is part success
+              if (parseInt(respInfo.statusCode / 100) == 2) {
+                respBody.forEach(function(item) {
+                  if (item.code == 200) {
+                    console.log(item.code + "\tsuccess");
+                  } else {
+                    console.log(item.code + "\t" + item.data.error);
+                  }
+                });
+                resolve({
+                  success: true,
+                  message: "All deleted",
+                  data: {}
+                })
+              } else {
+                console.log(respInfo.deleteusCode);
+                console.log(respBody);
+                reject({
+                  success: false,
+                  message: "Something wrong during delete but jobs completed",
+                  data: {}
+                })
+              }
+            }
+          });
         }
-      });
-    },
-    get: () => {
-  
-    },
-    remove: () => {
-  
+        else {
+          reject({
+            success: false,
+            message: "No images found",
+            data: {}
+          })
+        }
+      })
+
     }
   }
 }

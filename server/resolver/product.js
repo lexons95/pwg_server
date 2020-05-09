@@ -1,13 +1,12 @@
-import mongoose from 'mongoose';
 import { AuthenticationError } from 'apollo-server-express';
 import ProductModel from '../model/product';
-import qiniuAPI from '../utils/qiniuAPI';
+import { editorOnly } from '../utils/authentication';
 
 const resolvers = {
   Query: {
     products: async (_, args=null, context) => {
       let loggedInUser = context.req.user;
-      let dbName = loggedInUser.config_id;
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       const db_base = await global.connection.useDb(dbName);
       const collection_product = await db_base.model("Product",ProductModel.schema,'product');
 
@@ -21,9 +20,9 @@ const resolvers = {
       
   },
   Mutation: {
-    createProduct: async (_, args={}, context) => {
+    createProduct: editorOnly( async (_, args={}, context) => {
       let loggedInUser = context.req.user;
-      let dbName = loggedInUser.config_id;
+      let dbName = loggedInUser.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
@@ -37,10 +36,27 @@ const resolvers = {
         message: "user config id not found",
         data: {}
       };
-    },
-    updateProduct: async (_, args={}, context) => {
+    }),
+    createProducts: editorOnly( async (_, args={}, context) => {
       let loggedInUser = context.req.user;
-      let dbName = loggedInUser.config_id;
+      let dbName = loggedInUser.configId;
+      if (dbName) {
+        const db_base = await global.connection.useDb(dbName);
+        const collection_product = await db_base.model("Product",ProductModel.schema,'product');
+        const newProductObj = Object.assign({},args.product,{published: false, images: []});
+        
+        let createResult = await collection_product.findOneOrCreate(newProductObj);
+        return createResult;
+      }
+      return {
+        success: false,
+        message: "user config id not found",
+        data: {}
+      };
+    }),
+    updateProduct: editorOnly( async (_, args={}, context) => {
+      let loggedInUser = context.req.user;
+      let dbName = loggedInUser.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
@@ -54,10 +70,10 @@ const resolvers = {
         message: "user config id not found",
         data: {}
       };
-    },
-    deleteProduct: async (_, args={}, context) => {
+    }),
+    deleteProduct: editorOnly( async (_, args={}, context) => {
       let loggedInUser = context.req.user;
-      let dbName = loggedInUser.config_id;
+      let dbName = loggedInUser.configId;
       if (dbName || args._id) {
         const db_base = await global.connection.useDb(dbName);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
@@ -70,10 +86,10 @@ const resolvers = {
         message: "user config id not found",
         data: {}
       };
-    },
-    updateProductPublish: async (_, args={}, context) => {
+    }),
+    updateProductPublish: editorOnly( async (_, args={}, context) => {
       let loggedInUser = context.req.user;
-      let dbName = loggedInUser.config_id;
+      let dbName = loggedInUser.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
@@ -86,13 +102,7 @@ const resolvers = {
         message: "user config id not found",
         data: {}
       };
-    },
-    testUploadImage: async (_, args={}, context) => {
-      
-        const x = qiniuAPI();
-        console.log('QiniuAPI',x)
-        return "testUploadImage"
-    }
+    })
       
   }
   

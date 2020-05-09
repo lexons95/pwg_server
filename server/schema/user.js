@@ -23,7 +23,7 @@ const schema = gql`
     password: String!,
     email: String,
     role: String,,
-    config_id: String,
+    configId: String,
     profile: UserProfile,
     tokenCount: Float
   }

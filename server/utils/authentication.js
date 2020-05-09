@@ -55,18 +55,40 @@ export const validateTokensMiddleware = async (req, res, next) => {
     next();
 }
 
-// check logged in or not
-export const isAuthenticated = async (_, args={}, { req }) => {
-    return req.user ? skip : new AuthenticationError('Not authenticated as user.');
-}
+// // check logged in or not
+// export const isAuthenticated = async (_, args={}, { req }) => {
+//     return req.user ? skip : new AuthenticationError('Not authenticated as user.');
+// }
   
-// check if the logged in user is admin
-export const isAdmin = combineResolvers(
-    isAuthenticated,
-    (_, args={}, { req }) => {
-        let userObj = req.user;
-        return userObj.role == 'ADMIN'
-            ? skip
-            : new AuthenticationError('Not authorized as admin.')
+// // check if the logged in user is admin
+// export const isAdmin = combineResolvers(
+//     isAuthenticated,
+//     (_, args={}, { req }) => {
+//         let userObj = req.user;
+//         return userObj.role == 'ADMIN'
+//             ? skip
+//             : new AuthenticationError('Not authorized as admin.')
+//     }
+// );
+
+export const requiresRole = roles => resolver => {
+    return (parent, args, context, info) => {
+        if (context.req.user && (!roles || roles.indexOf(context.req.user.role) >= 0)) {
+            return resolver(parent, args, context, info)
+        } else {
+            // return {
+            //     success: false,
+            //     message: "Unauthorized",
+            //     data: {}
+            // }
+            throw new AuthenticationError('Unauthorized')
+        }
     }
-);
+}
+
+export const tenantOnly = requiresRole(['TENANT'])
+export const editorOnly = requiresRole(['TENANT', 'ADMIN'])
+
+//   const membersOnly = requiresRole('MEMBER')
+//   const adminsOnly = requiresRole('ADMIN')
+//   const requiresLogin = requiresRole(null)

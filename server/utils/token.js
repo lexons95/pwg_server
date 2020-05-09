@@ -35,20 +35,6 @@ export const tokenCookies = ({ accessToken, refreshToken }) => {
     };
 }
 
-export const createToken2 = async (obj=null, expiresIn=null) => {
-    const sevenDays = 60 * 60 * 24 * 7 * 1000;
-    const mins_30 = 60 * 30 * 1000;
-
-    let expiresInResult = expiresIn ? expiresIn : mins_30;
-
-    const accessToken = await sign(
-        { data: obj },
-        access_token_key,
-        { expiresIn: expiresInResult }
-    )
-    return accessToken;
-}
-
 export const validateAccessToken = (token) => {
     try {
         return verify(token, access_token_key);

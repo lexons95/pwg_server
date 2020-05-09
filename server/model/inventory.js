@@ -51,7 +51,6 @@ inventorySchema.static('bulkUpdate', async function(obj = {}) {
   let bulkUpdateArray = [];
   if (!Object.entries(obj).length === 0 || obj.constructor === Object) {
     if (obj.inventory.length > 0) {
-      let ObjectId = mongoose.Types.ObjectId;
       obj.inventory.map((anInventory)=>{
         const { _id: inventoryId, deleted=false, ...restProperty } = anInventory;
         if (deleted) {
@@ -116,6 +115,68 @@ inventorySchema.static('updatePublishMany', async function(obj = {}) {
       }
     })
 
+  }
+  return response;
+})
+
+inventorySchema.static('bulkModifyInventory', async function(obj = {}, operation = null) {
+  let response = {
+      success: false,
+      message: "",
+      data: {}
+  }
+  let bulkModifyArray = [];
+  // let operation = ['create','update','delete']
+  if (obj && obj.items && obj.items.length > 0) {
+    let operationType = 'update' 
+    obj.items.map((anItem)=>{
+      if (operationType == 'update') {
+        let filter = { _id: anItem.inventoryId };
+        if (operation && operation == 'decrease') {
+          bulkModifyArray.push({
+            updateOne: {
+              filter: filter,
+              update: {
+                $inc: { stock: -anItem.qty }
+              }
+            }
+          })
+        }
+        else {
+          bulkModifyArray.push({
+            updateOne: {
+              filter: filter,
+              update: {
+                $inc: { stock: anItem.qty }
+              }
+            }
+          })
+        }
+      }
+      if (operationType == 'delete') {
+        bulkModifyArray.push(
+
+        )
+      }
+      
+    })
+  }
+
+  if (bulkModifyArray.length > 0) {
+    await this.bulkWrite(bulkModifyArray).then(res => {
+      response = {
+        success: true,
+        message: "",
+        data: res
+      }
+    });
+  }
+  else {
+    response = {
+      success: true,
+      message: "no operations",
+      data: {}
+    }
   }
   return response;
 })

@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { AuthenticationError } from 'apollo-server-express';
 import UserModel from '../model/user';
 import { createPassword } from '../utils/password';
@@ -52,7 +51,7 @@ const resolvers = {
         const collection_user = await db_base.model("User",UserModel.schema,'user');
 
         let hashPassword = createPassword(args.user.password);
-        const newUserObj = Object.assign({},args.user,{password: hashPassword, config_id: "", tokenCount: 0, role: "CUSTOMER"});
+        const newUserObj = Object.assign({},args.user,{password: hashPassword, configId: "", tokenCount: 0, role: "CUSTOMER"});
         
         let createResult = await collection_user.findOneOrCreate(newUserObj);
         return createResult;
