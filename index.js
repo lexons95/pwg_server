@@ -50,9 +50,9 @@ const run = async () => {
     //saveUninitialized: true
   };
   // app.use(cors(corsOptions));
-  app.use(cors());
+  //app.use(cors());
 
-  server.applyMiddleware({ app, cors: true });
+  server.applyMiddleware({ app, cors: corsOptions });
 // console.log("initDbConnection",connect.initDbConnection)
   global.connection = connect.initDbConnection();
   app.listen({ port: PORT }, () =>
