@@ -49,7 +49,8 @@ const run = async () => {
     credentials: true,
     //saveUninitialized: true
   };
-  app.use(cors(corsOptions));
+  // app.use(cors(corsOptions));
+  app.use(cors());
 
   server.applyMiddleware({ app,cors: false });
 // console.log("initDbConnection",connect.initDbConnection)
