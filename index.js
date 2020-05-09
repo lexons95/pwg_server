@@ -45,14 +45,14 @@ const run = async () => {
     WHITE_LIST.push(process.env.WHITE_LIST)
   }
   const corsOptions = {
-    origin: WHITE_LIST,
+    //origin: WHITE_LIST,
     credentials: true,
     //saveUninitialized: true
   };
-  // app.use(cors(corsOptions));
+  app.use(cors(corsOptions));
+  // app.use(cors());
   
   server.applyMiddleware({ app, cors: false });
-  app.use(cors());
 // console.log("initDbConnection",connect.initDbConnection)
   global.connection = connect.initDbConnection();
   app.listen({ port: PORT }, () =>
