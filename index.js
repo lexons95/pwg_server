@@ -45,7 +45,7 @@ const run = async () => {
     WHITE_LIST.push(process.env.WHITE_LIST)
   }
   const corsOptions = {
-    //origin: WHITE_LIST,
+    origin: "*",
     credentials: true,
     //saveUninitialized: true
   };
