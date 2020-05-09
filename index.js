@@ -12,8 +12,10 @@ import cookieParser from 'cookie-parser';
 // import bodyParser from 'body-parser';
 // import UserModel from './server/model/user';
 import { validateTokensMiddleware } from './server/utils/authentication';
+const dotenv = require('dotenv');
+dotenv.config();
 
-const PORT = 5003;
+const PORT = process.env.PORT;
 
 const run = async () => {
 
@@ -38,7 +40,10 @@ const run = async () => {
     }
   });
 
-  const WHITE_LIST = [`http://localhost:${PORT}`,'http://localhost:3003']
+  const WHITE_LIST = [`http://localhost:${PORT}`, 'http://localhost:3003']
+  if (process.env.WHITE_LIST) {
+    WHITE_LIST.push(process.env.WHITE_LIST)
+  }
   const corsOptions = {
     origin: WHITE_LIST,
     credentials: true,

@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
+const dotenv = require('dotenv');
+dotenv.config();
 
-const CONNECTION_URL = "mongodb+srv://admin:P%40ssw0rd@projectsaas-9da5p.mongodb.net/test?retryWrites=true&w=majority"
+const CONNECTION_URL = process.env.CONNECTION_URL;
 
 const clientOption = {
   socketTimeoutMS: 30000,
