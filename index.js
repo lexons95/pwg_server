@@ -23,7 +23,7 @@ const run = async () => {
 
   app.use(cookieParser()); // cookieParser need to be placed before other app.use 
   app.use(validateTokensMiddleware);
-
+  app.use(cors());
   const server = new ApolloServer({
     typeDefs,
     resolvers,
@@ -50,7 +50,7 @@ const run = async () => {
     //saveUninitialized: true
   };
   // app.use(cors(corsOptions));
-  app.use(cors());
+  
 
   server.applyMiddleware({ app,cors: false });
 // console.log("initDbConnection",connect.initDbConnection)
