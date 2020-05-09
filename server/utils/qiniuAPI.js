@@ -1,9 +1,11 @@
 import qiniu from 'qiniu';
+const dotenv = require('dotenv');
+dotenv.config();
 
 const qiniuAPI = (configId = null) => {
   // store keys outside
-  const accessKey = '1onu7yWhC-cnKDKXpXb9qFTYLDXIIBtVGNOY_4i3';
-  const secretKey = '5fx73jAMgIi3CVSryCNL4YxuRxuRne4bHy_vWQHO';
+  const accessKey = process.env.QINIU_ACCESSKEY;
+  const secretKey = process.env.QINIU_SECRETKEY;
   const mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
 
   // bucket based on userId

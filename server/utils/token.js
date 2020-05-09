@@ -1,7 +1,9 @@
 import { sign, verify } from "jsonwebtoken";
+const dotenv = require('dotenv');
+dotenv.config();
 
-const access_token_key = 'pwg-saas-access';
-const refresh_token_key = 'pwg-saas-refresh';
+const access_token_key = process.env.ACCESS_TOKEN_KEY;
+const refresh_token_key = process.env.REFRESH_TOKEN_KEY;
 
 export const createToken = async (obj, expiresIn=null) => {
     const sevenDays = 60 * 60 * 24 * 7 * 1000;
