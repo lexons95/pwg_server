@@ -5,8 +5,7 @@ import { editorOnly } from '../utils/authentication';
 const resolvers = {
   Query: {
     userConfig: async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      let dbName = args.configId;
       const db_base = await global.connection.useDb("base"); 
       const collection_config = await db_base.collection("config");
       let response = {
@@ -36,12 +35,6 @@ const resolvers = {
       else {
         return new ApolloError("Failed to get token");
       }
-      // let api = qiniuAPI();
-      // let x = await api.upload().then(data=>{
-      //   console.log('aaa',data)
-      // }).catch((err) => console.log('err',err))
-      // // console.log('QiniuAPI',x)
-      // return "testUploadImage"
     })
   },
   Mutation: {
@@ -49,7 +42,6 @@ const resolvers = {
       let loggedInUser = context.req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       let batchDeleteResult = await qiniuAPI(dbName).batchDelete(args.images).then(result=>{
-        console.log('batchDeleteResult',result)
         return result
       }).catch(err=>{
         console.log('batchDeleteResult err',err)

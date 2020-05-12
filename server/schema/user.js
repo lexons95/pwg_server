@@ -12,7 +12,7 @@ const schema = gql`
     deleteUser(id: String!): Response!
 
     loginUser(user: JSONObject!): Response!
-    changeUserPassword(user: JSONObject!): Response!
+    changeUserPassword(_id: String!, password: String!): Response!
     login(user: JSONObject): Response
     logout: Response
   }

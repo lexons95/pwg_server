@@ -78,7 +78,6 @@ const resolvers = {
         const db_base = await global.connection.useDb(dbName);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
         let deleteResult = await collection_product.deleteOneProduct(args._id);
-        console.log('deleteResult',deleteResult)
         return deleteResult;
       }
       return {

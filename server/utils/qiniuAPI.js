@@ -73,8 +73,6 @@ const qiniuAPI = (configId = null) => {
                   data: {}
                 })
               } else {
-                console.log(respInfo.deleteusCode);
-                console.log(respBody);
                 reject({
                   success: false,
                   message: "Something wrong during delete but jobs completed",

@@ -61,7 +61,6 @@ productSchema.static('findOneOrCreate', async function(obj = null) {
     if (newProduct && newProduct.name) {
         let findPromise = this.findOne({name: newProduct.name});
         await findPromise.then( async (result, error) => {
-            // console.log("in findone")
             if (error) {
                 response = {
                     success: false,
@@ -88,7 +87,6 @@ productSchema.static('findOneOrCreate', async function(obj = null) {
                             }
                         }
                         else {
-                            // console.log("result",result)
                             response = {
                                 success: true,
                                 message: "data created",
@@ -122,7 +120,6 @@ productSchema.static('updateOne', async function(obj = null) {
       if (newProduct && newProduct.name) {
           let findPromise = this.findOne({_id: newProduct._id});
           await findPromise.then( async (result, error) => {
-              // console.log("in findone")
               if (error) {
                   response = {
                       success: false,
@@ -143,7 +140,6 @@ productSchema.static('updateOne', async function(obj = null) {
                             }
                         }
                         else {
-                            // console.log("result",result)
                             response = {
                                 success: true,
                                 message: "data updated",

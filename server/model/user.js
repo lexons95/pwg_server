@@ -51,7 +51,6 @@ userSchema.static('findOneOrCreate', async function(obj = null) {
     if (newUser && newUser.username && newUser.password) {
         let findPromise = this.findOne({username: newUser.username});
         await findPromise.then( async (result, error) => {
-            // console.log("in findone")
             if (error) {
                 response = {
                     success: false,
@@ -182,11 +181,9 @@ userSchema.static('authenticate', async function(obj = {}) {
   }
   let user = obj;
   let findPromise = await this.findOne({username: user.username});
-  console.log("findPromise",findPromise)
   if (findPromise) {
     let matchPassword = await findPromise.validatePassword(user.password)
     // let matchPassword = await bcrypt.compare(user.password, this.password);
-    console.log("matchPassword",matchPassword)
     if (matchPassword) {
       response = {
         success: true,

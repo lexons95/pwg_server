@@ -1,4 +1,4 @@
-import { AuthenticationError } from 'apollo-server-express';
+import { AuthenticationError, ApolloError } from 'apollo-server-express';
 import UserModel from '../model/user';
 import { createPassword } from '../utils/password';
 import { createToken, tokenCookies } from "../utils/token";
@@ -42,6 +42,8 @@ const resolvers = {
             message: "no user logged in",
             data: null
           }
+          // return new ApolloError("User not found");
+
         }
       }
     },
@@ -54,6 +56,8 @@ const resolvers = {
         const newUserObj = Object.assign({},args.user,{password: hashPassword, configId: "", tokenCount: 0, role: "CUSTOMER"});
         
         let createResult = await collection_user.findOneOrCreate(newUserObj);
+
+        // create qiniu bucket, create config
         return createResult;
         // if (createResult.success) {
         //     let tokenData = {
@@ -85,6 +89,32 @@ const resolvers = {
       //     data: user
       //   };
       // },
+
+      changeUserPassword: async (_, args={}, context) => {
+        const db_base = await global.connection.useDb("base");
+        const collection_user = await db_base.model("User",UserModel.schema,'user');
+        let newHashPassword = createPassword(args.password);
+        // let updateResult = await collection_user.findOneAndUpdate({_id: args._id}, {password: newHashPassword})
+        let response = {
+          success: false,
+          message: "",
+          data: {}
+        }
+        await collection_user.findOneAndUpdate({_id: args._id}, {password: newHashPassword}).then((res)=>{
+          response = {
+            success: true,
+            message: "Change Password Success",
+            data: {}
+          }
+        }).catch(err => {
+          response = {
+            success: false,
+            message: "Change Password Error",
+            data: {}
+          }
+        })
+        return response;
+      },
       login: async (_, args={}, context) => {
         const db_base = await global.connection.useDb("base");
         const collection_user = await db_base.model("User",UserModel.schema,'user');

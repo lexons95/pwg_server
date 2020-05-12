@@ -61,8 +61,6 @@ orderSchema.static('createOrder', async function(obj = null) {
 
   let createPromise = this.create(obj)
   await createPromise.then((result, err)=>{
-    console.log('err',err);
-    console.log('result',result);
 
     if (!err) {
       response = {
@@ -85,9 +83,6 @@ orderSchema.static('updateOrderPayment', async function(obj = null) {
   
   let updatePromise = this.findOneAndUpdate({_id: obj._id},{ $set: { paid: obj.paid }})
   await updatePromise.then((result, err)=>{
-    console.log('err',err);
-    console.log('result',result);
-
     if (!err) {
       response = {
         success: true,
@@ -118,9 +113,6 @@ orderSchema.static('updateOrderDelivery', async function(obj = null) {
   }
   let updatePromise = this.findOneAndUpdate({_id: obj._id},{ $set: setter})
   await updatePromise.then((result, err)=>{
-    console.log('err',err);
-    console.log('result',result);
-
     if (!err) {
       response = {
         success: true,
@@ -142,8 +134,6 @@ orderSchema.static('cancelOrder', async function(obj = null) {
 
   let deletePromise = this.findOneAndDelete({_id: obj._id})
   await deletePromise.then((result, err)=>{
-    console.log('err',err);
-    console.log('result',result);
 
     if (!err) {
       response = {

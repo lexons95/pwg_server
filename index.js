@@ -46,15 +46,13 @@ const run = async () => {
   // }
   const corsOptions = {
     origin: (origin, callback) => {
-    
       if (WHITE_LIST.indexOf(origin) !== -1) {
           callback(null, true)
       } else {
           // callback(new Error("Not allowed by CORS"))
           callback(null, true)
-
       }
-  },
+    },
     credentials: true
   };
   app.use(cors(corsOptions));
