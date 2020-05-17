@@ -16,7 +16,7 @@ const resolvers = {
       return await collection_order.getOrders(args);
     }),
     order: async (_, args=null, context) => {
-      return "read user"
+      return "read order"
     }
 
 
@@ -25,7 +25,7 @@ const resolvers = {
   Mutation: {
     createOrder: async (_, args={}, context) => {
       let loggedInUser = context.req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      let dbName = args.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
         const collection_order = await db_base.model("Order",OrderModel.schema,'order');

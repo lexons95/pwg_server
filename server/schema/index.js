@@ -25,7 +25,6 @@ const linkSchema = gql`
         success: Boolean!
         message: String
         data: JSONObject
-        accessToken: JSONObject
     }
 
 `;

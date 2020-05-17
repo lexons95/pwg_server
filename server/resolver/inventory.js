@@ -7,6 +7,8 @@ const resolvers = {
     inventory: async (_, args=null, context) => {
       let loggedInUser = context.req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      console.log('loggedInUser',loggedInUser)
+      console.log('args',args)
       const db_base = await global.connection.useDb(dbName);
       const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
 

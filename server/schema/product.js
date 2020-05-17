@@ -3,7 +3,7 @@ import { gql } from 'apollo-server-express';
 const schema = gql`
   extend type Query {
     products(filter: JSONObject, configId: String): [Product]!
-    product(_id: String!): Product
+    product(_id: String!, configId: String): Product
   }
   extend type Mutation {
     createProduct(product: JSONObject!): Response!
