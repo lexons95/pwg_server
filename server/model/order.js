@@ -17,7 +17,10 @@ const orderSchema = new Schema({
     type: Boolean,
     default: false
   },
-  trackingNum: String,
+  trackingNum: {
+    type: String,
+    default: ""
+  },
   sentOut: {
     type: Boolean,
     default: false
@@ -61,7 +64,7 @@ orderSchema.static('createOrder', async function(obj = null) {
 
   let createPromise = this.create(obj)
   await createPromise.then((result, err)=>{
-
+    console.log(result)
     if (!err) {
       response = {
         success: true,

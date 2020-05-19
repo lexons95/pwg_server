@@ -29,15 +29,15 @@ const resolvers = {
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
         const collection_order = await db_base.model("Order",OrderModel.schema,'order');
+
         const newOrderObj = Object.assign({},args.order);
-        
         let createResult = await collection_order.createOrder(newOrderObj);
         console.log('createResult',createResult)
-        // if (createResult && createResult.success) {
-        //   const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
-        //   let bulkUpdateResult = await collection_inventory.bulkModifyInventory(createResult.data, 'decrease');
-        //   return bulkUpdateResult;
-        // }
+        if (createResult && createResult.success) {
+          const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
+          let bulkUpdateResult = await collection_inventory.bulkModifyInventory(createResult.data, 'decrease');
+          return {...bulkUpdateResult, data: createResult.data};
+        }
         return createResult;
       }
       return {
@@ -45,6 +45,7 @@ const resolvers = {
         message: "user config id not found",
         data: {}
       };
+
     },
     updateOrderPayment: editorOnly( async (_, args={}, context) => {
       let loggedInUser = context.req.user;
