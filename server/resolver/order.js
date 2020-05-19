@@ -7,14 +7,14 @@ import { editorOnly } from '../utils/authentication';
 
 const resolvers = {
   Query: {
-    orders: editorOnly( async (_, args=null, context) => {
+    orders: async (_, args=null, context) => {
       let loggedInUser = context.req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       const db_base = await global.connection.useDb(dbName);
       const collection_order = await db_base.model("Order",OrderModel.schema,'order');
 
       return await collection_order.getOrders(args);
-    }),
+    },
     order: async (_, args=null, context) => {
       return "read order"
     }
