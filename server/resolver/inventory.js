@@ -8,7 +8,6 @@ const resolvers = {
       let loggedInUser = context.req.user;
       let dbName = args.configId;
       if (dbName) {
-        console.log('args',args)
         const db_base = await global.connection.useDb(dbName);
         const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
         return await collection_inventory.getInventory(args);

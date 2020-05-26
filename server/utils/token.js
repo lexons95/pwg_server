@@ -29,7 +29,8 @@ export const tokenCookies = ({ accessToken, refreshToken }) => {
         httpOnly: true,
         // secure: true, //for HTTPS only
         // domain: "your-website.com",
-        SameSite: 2
+        promo_shown: 1,
+        SameSite: 'Strict'
     };
     return {
         access: ["access-saas", accessToken, cookieOptions],

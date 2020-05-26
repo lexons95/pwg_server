@@ -8,7 +8,7 @@ const schema = gql`
   extend type Mutation {
     createProduct(product: JSONObject!): Response!
     createProducts(products: [JSONObject!]!): Response!
-    updateProduct(product: JSONObject!): Response!
+    updateProduct(product: JSONObject!, inventory: [JSONObject!]): Response!
     deleteProduct(_id: String!): Response!
     updateProductPublish(ids: [String!], published: Boolean!): Response!
   }

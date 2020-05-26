@@ -1,5 +1,7 @@
 import { AuthenticationError } from 'apollo-server-express';
 import ProductModel from '../model/product';
+import InventoryModel from '../model/inventory';
+
 import { editorOnly } from '../utils/authentication';
 
 const resolvers = {
@@ -63,6 +65,12 @@ const resolvers = {
         const productObj = args.product;
 
         let updateResult = await collection_product.updateOne(productObj);
+        if (updateResult && updateResult.success && args.inventory != undefined) {
+          const inventoryArray = args.inventory;
+          const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
+          let bulkUpdateResult = await collection_inventory.bulkUpdate({inventory: inventoryArray});
+          return bulkUpdateResult;
+        }
         return updateResult;
       }
       return {

@@ -56,23 +56,24 @@ const resolvers = {
     updateConfig: editorOnly( async (_, args={}, context) => {
       let loggedInUser = context.req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
-      const db_base = await global.connection.useDb("base"); 
-      const collection_config = await db_base.collection("config");
-      let filter = {configId: dbName};
-      let setter = {
-
-      }
-      let foundResult = await collection_config.findOneAndUpdate(filter, setter)
-      if (foundResult) {
-        return {
-          success: true,
-          message: "config found",
-          data: foundResult
+      if (dbName) {
+        const db_base = await global.connection.useDb("base"); 
+        const collection_config = await db_base.collection("config");
+        let filter = {configId: dbName};
+        let setter = {
+          $set: args.config
+        }
+        let foundResult = await collection_config.findOneAndUpdate(filter, setter)
+        if (foundResult) {
+          return {
+            success: true,
+            message: "config found",
+            data: foundResult
+          }
         }
       }
-      else {
-        return new ApolloError("Config not found");
-      }
+      return new ApolloError("Config not found");
+      
     }),
   }
 };
