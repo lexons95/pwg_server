@@ -63,7 +63,9 @@ const resolvers = {
         let setter = {
           $set: args.config
         }
-        let foundResult = await collection_config.findOneAndUpdate(filter, setter)
+        let foundResult = await collection_config.findOneAndUpdate(filter, setter, {
+          returnOriginal: false
+        })
         if (foundResult) {
           return {
             success: true,
