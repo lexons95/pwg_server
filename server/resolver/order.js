@@ -27,18 +27,30 @@ const resolvers = {
       let loggedInUser = context.req.user;
       let dbName = args.configId;
       if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
-        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
-
-        const newOrderObj = Object.assign({},args.order);
-        let createResult = await collection_order.createOrder(newOrderObj);
-        console.log('createResult',createResult)
-        if (createResult && createResult.success) {
+        if (args.order && args.order.items && args.order.items.length > 0) {
+          const db_base = await global.connection.useDb(dbName);
+          const collection_order = await db_base.model("Order",OrderModel.schema,'order');
+  
           const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
-          let bulkUpdateResult = await collection_inventory.bulkModifyInventory(createResult.data, 'decrease');
-          return {...bulkUpdateResult, data: createResult.data};
+          let checkStockResult = await collection_inventory.checkInventoryStock(args.order.items);
+          console.log('checkStockResult',checkStockResult)
+          if (checkStockResult && checkStockResult.success) {
+            const newOrderObj = Object.assign({},args.order);
+            let createResult = await collection_order.createOrder(newOrderObj);
+            console.log('createResult',createResult)
+            if (createResult && createResult.success) {
+              let bulkUpdateResult = await collection_inventory.bulkModifyInventory(createResult.data, 'decrease');
+              return {...bulkUpdateResult, data: createResult.data};
+            }
+            return createResult;
+          }
+          return checkStockResult;
         }
-        return createResult;
+        return {
+          success: false,
+          message: "not item in order",
+          data: {}
+        };
       }
       return {
         success: false,

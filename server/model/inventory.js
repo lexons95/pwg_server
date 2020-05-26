@@ -190,6 +190,55 @@ inventorySchema.static('bulkModifyInventory', async function(obj = {}, operation
   return response;
 })
 
+inventorySchema.static('checkInventoryStock', async function(items = []) {
+  let response = {
+    success: false,
+    message: "",
+    data: {}
+  }
+
+  if (items.length > 0) {
+    let inventoryIds = items.map((anItem)=>anItem.inventoryId);
+    let foundInventories = await this.find({
+      _id: {
+        $in: inventoryIds
+      }
+    });
+
+    let insufficientStock = [];
+
+    foundInventories.map((anInventory)=>{
+      let foundItem = items.find((anItem)=>anItem.inventoryId == anInventory._id);
+      if (foundItem) {
+        let newStockPreview = anInventory.stock - foundItem.qty;
+        if (newStockPreview < 0) {
+          insufficientStock.push({...foundItem, stock: anInventory.stock });
+        } 
+      }
+    });
+
+    if (insufficientStock.length > 0) {
+      response = {
+        success: false,
+        message: "库存不足",
+        data: {
+          items: insufficientStock
+        }
+      }
+    }
+    else {
+      response = {
+        success: true,
+        message: "",
+        data: {}
+      }
+    }
+
+  }
+
+  return response;
+});
+
 const Inventory = mongoose.model('Inventory', inventorySchema); 
 
 export default {
