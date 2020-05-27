@@ -211,7 +211,7 @@ inventorySchema.static('checkInventoryStock', async function(items = []) {
       let foundItem = items.find((anItem)=>anItem.inventoryId == anInventory._id);
       if (foundItem) {
         let newStockPreview = anInventory.stock - foundItem.qty;
-        if (newStockPreview < 0) {
+        if (newStockPreview < 0 || !anInventory.published) {
           insufficientStock.push({...foundItem, stock: anInventory.stock });
         } 
       }
