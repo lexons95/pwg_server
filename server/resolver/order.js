@@ -1,6 +1,7 @@
 import { AuthenticationError } from 'apollo-server-express';
 import OrderModel from '../model/order';
 import InventoryModel from '../model/inventory';
+import ProductModel from '../model/product';
 
 import { editorOnly } from '../utils/authentication';
 
@@ -28,23 +29,30 @@ const resolvers = {
       let dbName = args.configId;
       if (dbName) {
         if (args.order && args.order.items && args.order.items.length > 0) {
+          let orderItems = args.order.items;
           const db_base = await global.connection.useDb(dbName);
-          const collection_order = await db_base.model("Order",OrderModel.schema,'order');
-  
+          const collection_product = await db_base.model("Product",ProductModel.schema,'product');
           const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
-          let checkStockResult = await collection_inventory.checkInventoryStock(args.order.items);
-          console.log('checkStockResult',checkStockResult)
-          if (checkStockResult && checkStockResult.success) {
-            const newOrderObj = Object.assign({},args.order);
-            let createResult = await collection_order.createOrder(newOrderObj);
-            console.log('createResult',createResult)
-            if (createResult && createResult.success) {
-              let bulkUpdateResult = await collection_inventory.bulkModifyInventory(createResult.data, 'decrease');
-              return {...bulkUpdateResult, data: createResult.data};
+          const collection_order = await db_base.model("Order",OrderModel.schema,'order');
+
+          
+          let checkProductPublishedResult = await collection_product.checkProductPublish(orderItems);
+
+          if (checkProductPublishedResult && checkProductPublishedResult.success) {
+            let checkStockResult = await collection_inventory.checkInventoryStock(orderItems);
+            if (checkStockResult && checkStockResult.success) {
+              const newOrderObj = Object.assign({},args.order);
+              let createResult = await collection_order.createOrder(newOrderObj);
+              console.log('createResult',createResult)
+              if (createResult && createResult.success) {
+                let bulkUpdateResult = await collection_inventory.bulkModifyInventory(createResult.data, 'decrease');
+                return {...bulkUpdateResult, data: createResult.data};
+              }
+              return createResult;
             }
-            return createResult;
+            return checkStockResult;
           }
-          return checkStockResult;
+          return checkProductPublishedResult;
         }
         return {
           success: false,

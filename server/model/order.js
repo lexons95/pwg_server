@@ -43,14 +43,14 @@ orderSchema.static('getOrders', function(filterObj = null) {
       skipResult = obj.skip ? obj.skip : 0;
       limitResult = obj.limit ? obj.limit : 0;
 
-      const orderBy = {
-          "desc": -1,
-          "acs": 1
-      }
-      let sorterKeys = Object.keys(sorter);
-      sorterKeys.map(aKey=>{
-          sorterResult[aKey] = orderBy[aKey];
-      })
+      // const orderBy = {
+      //     "desc": -1,
+      //     "acs": 1
+      // }
+      // let sorterKeys = Object.keys(sorter);
+      // sorterKeys.map(aKey=>{
+      //     sorterResult[aKey] = orderBy[aKey];
+      // })
   }
   return this.find(filterResult).sort(sorterResult).skip(skipResult).limit(limitResult);
 });

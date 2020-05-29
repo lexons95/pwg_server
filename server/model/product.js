@@ -206,33 +206,79 @@ productSchema.static('deleteOneProduct', async function(productId = null) {
 });
 
 productSchema.static('updatePublishMany', async function(obj = {}) {
-    let response = {
-      success: false,
-      message: "",
-      data: {}
-    } 
-  
-    if (!Object.entries(obj).length === 0 || obj.constructor === Object) {
-      let ids = obj.ids ? obj.ids : [];
-      let published = obj.published;
-      await this.updateMany(
-        {
-          _id: { $in: ids }
-        },
-        { published: published }
-      ).then(res => {
-        response = {
-          success: true,
-          message: "",
-          data: res
+  let response = {
+    success: false,
+    message: "",
+    data: {}
+  } 
+
+  if (!Object.entries(obj).length === 0 || obj.constructor === Object) {
+    let ids = obj.ids ? obj.ids : [];
+    let published = obj.published;
+    await this.updateMany(
+      {
+        _id: { $in: ids }
+      },
+      { published: published }
+    ).then(res => {
+      response = {
+        success: true,
+        message: "",
+        data: res
+      }
+    })
+
+  }
+  return response;
+})
+
+productSchema.static('checkProductPublish', async function(items = []) {
+  let response = {
+    success: false,
+    message: "",
+    data: {}
+  }
+
+  if (items.length > 0) {
+    let productIds = items.map((anItem)=>anItem.product._id);
+    let foundProducts = await this.find({
+      _id: {
+        $in: productIds
+      }
+    });
+
+    let notPublished = [];
+
+    foundProducts.map((aProduct)=>{
+      let foundItem = items.find((anItem)=>anItem.product._id == aProduct._id);
+      if (foundItem) {
+        if (!aProduct.published) {
+          notPublished.push(foundItem);
+        } 
+      }
+    });
+
+    if (notPublished.length > 0) {
+      response = {
+        success: false,
+        message: "已下架",
+        data: {
+          items: notPublished
         }
-      })
-  
+      }
     }
-    return response;
-  })
+    else {
+      response = {
+        success: true,
+        message: "",
+        data: {}
+      }
+    }
 
+  }
 
+  return response;
+});
 const Product = mongoose.model('Product', productSchema); 
 
 export default {
