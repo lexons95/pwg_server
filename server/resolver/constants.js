@@ -25,12 +25,26 @@ const resolvers = {
         return new ApolloError("Config not found");
       }
     },
-    qiniuToken: editorOnly( (_, args={}, context) => {
+    qiniuToken: editorOnly( async (_, args={}, context) => {
       let loggedInUser = context.req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
-      let getTokenResult = qiniuAPI(dbName).getToken();
-      if (getTokenResult.success) {
-        return getTokenResult;
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      const db_base = await global.connection.useDb("base"); 
+      const collection_config = await db_base.collection("config");
+      if (dbName) {
+        let foundConfigResult = await collection_config.findOne({configId: dbName});
+        if (foundConfigResult) {
+          let bucketName = foundConfigResult.bucketName;
+          let getTokenResult = qiniuAPI(bucketName).getToken();
+          if (getTokenResult.success) {
+            return getTokenResult;
+          }
+          else {
+            return new ApolloError("Failed to get token");
+          }
+        }
+        else {
+          return new ApolloError("Failed to get config");
+        }
       }
       else {
         return new ApolloError("Failed to get token");
@@ -40,18 +54,63 @@ const resolvers = {
   Mutation: {
     qiniuBatchDelete: editorOnly( async (_, args={}, context) => {
       let loggedInUser = context.req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
-      let batchDeleteResult = await qiniuAPI(dbName).batchDelete(args.images).then(result=>{
-        return result
-      }).catch(err=>{
-        console.log('batchDeleteResult err',err)
-      });
-      if (batchDeleteResult) {
-        return batchDeleteResult;
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      const db_base = await global.connection.useDb("base"); 
+      const collection_config = await db_base.collection("config");
+      if (dbName) {
+        let foundConfigResult = await collection_config.findOne({configId: dbName});
+        if (foundConfigResult) {
+          let bucketName = foundConfigResult.bucketName;
+          let batchDeleteResult = await qiniuAPI(bucketName).batchDelete(args.images).then(result=>{
+            return result
+          }).catch(err=>{
+            console.log('batchDeleteResult err',err)
+          });
+          if (batchDeleteResult) {
+            return batchDeleteResult;
+          }
+          else {
+            return new ApolloError("Failed to delete");
+          } 
+        }
+        else {
+          return new ApolloError("Failed to get config");
+        }
       }
       else {
-        return new ApolloError("Failed to delete");
-      } 
+        return new ApolloError("Failed to get token");
+      }
+    }),
+    qiniuBatchCopy: editorOnly( async (_, args={}, context) => {
+      let loggedInUser = context.req.user;
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      // let newBucketName = args.targetBucketName;
+      let newBucketName = "mananml-2";
+      const db_base = await global.connection.useDb("base"); 
+      const collection_config = await db_base.collection("config");
+      if (dbName) {
+        let foundConfigResult = await collection_config.findOne({configId: dbName});
+        if (foundConfigResult) {
+          let bucketName = foundConfigResult.bucketName;
+          let batchCopyResult = await qiniuAPI(bucketName).batchCopy(args.images, newBucketName).then(result=>{
+            return result
+          }).catch(err=>{
+            console.log('batchCopyResult err',err)
+          });
+          if (batchCopyResult) {
+            return batchCopyResult;
+          }
+          else {
+            return new ApolloError("Failed to delete");
+          } 
+        }
+        else {
+          return new ApolloError("Failed to get config");
+        }
+      }
+      else {
+        return new ApolloError("Failed to get token");
+      }
     }),
     updateConfig: editorOnly( async (_, args={}, context) => {
       let loggedInUser = context.req.user;

@@ -7,6 +7,7 @@ const schema = gql`
   }
   extend type Mutation {
     qiniuBatchDelete(images: [String!]): Response!
+    qiniuBatchCopy(images: [String!]): Response!
     updateConfig(config: JSONObject, configId: String!): Response!
   }
 `;
