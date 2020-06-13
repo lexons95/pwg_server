@@ -11,6 +11,7 @@ const schema = gql`
 
     updateOrderPayment(_id: String!, paid: Boolean!): Response!
     updateOrderDelivery(_id: String!, trackingNum: String): Response!
+    updateOrderStatus(_id: String!, status: String!): Response!
     cancelOrder(_id: String!): Response!
   }
 
@@ -23,6 +24,7 @@ const schema = gql`
     deliveryFee: Float
     total: Float!
     customer: JSONObject
+    remark: String
 
     paid: Boolean!
     sentOut: Boolean!

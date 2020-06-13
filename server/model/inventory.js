@@ -9,6 +9,7 @@ const inventorySchema = new Schema({
   sku: String,
   price: Number,
   stock: Number,
+  weight: Number,
   variants: Object,
   description: String,
   published: Boolean,

@@ -99,6 +99,22 @@ const resolvers = {
         data: {}
       };
     }),
+    updateOrderStatus: editorOnly( async (_, args={}, context) => {
+      let loggedInUser = context.req.user;
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      if (dbName) {
+        const db_base = await global.connection.useDb(dbName);
+        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
+        
+        let updateResult = await collection_order.updateOrderStatus(args);
+        return updateResult;
+      }
+      return {
+        success: false,
+        message: "user config id not found",
+        data: {}
+      };
+    }),
     cancelOrder: editorOnly( async (_, args={}, context) => {
       let loggedInUser = context.req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;

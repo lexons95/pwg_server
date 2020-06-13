@@ -13,6 +13,10 @@ const orderSchema = new Schema({
   deliveryFee: Number,
   total: Number,
   customer: Object,
+  remark:  {
+    type: String,
+    default: ""
+  },
   paid: {
     type: Boolean,
     default: false
@@ -115,6 +119,30 @@ orderSchema.static('updateOrderDelivery', async function(obj = null) {
     setter['sentOut'] = false;
   }
   let updatePromise = this.findOneAndUpdate({_id: obj._id},{ $set: setter})
+  await updatePromise.then((result, err)=>{
+    if (!err) {
+      response = {
+        success: true,
+        message: "",
+        data: result
+      } 
+    }
+  });
+
+  return response;
+})
+
+orderSchema.static('updateOrderStatus', async function(obj = null) {
+  let response = {
+    success: false,
+    message: "",
+    data: {}
+  }
+  let setter = {
+    status: obj.status
+  }
+
+  let updatePromise = this.findOneAndUpdate({_id: obj._id},{ $set: setter })
   await updatePromise.then((result, err)=>{
     if (!err) {
       response = {

@@ -21,6 +21,8 @@ const schema = gql`
     description: String
     category: [JSONObject]
     variants: JSONObject
+    tags: [String]
+    type: String!
     published: Boolean!
     images: [JSONObject]!    
   }

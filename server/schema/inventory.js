@@ -20,9 +20,10 @@ const schema = gql`
     updatedAt: Date
     sku: String
     price: Float!
+    stock: Int!
+    weight: Float
     onSale: Boolean
     salePrice: Float
-    stock: Int!
     variants: JSONObject
     description: String
     published: Boolean!

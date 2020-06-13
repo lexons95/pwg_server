@@ -12,6 +12,14 @@ const productSchema = new Schema({
         default: []
     },
     variants: Object,
+    tags: {
+      type: Array,
+      default: []
+    },
+    type: {
+      type: String,
+      default: '0'
+    },
     published: {
         type: Boolean,
         default: false
