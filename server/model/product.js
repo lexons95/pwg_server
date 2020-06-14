@@ -67,44 +67,61 @@ productSchema.static('findOneOrCreate', async function(obj = null) {
     }
 
     if (newProduct && newProduct.name) {
-        let findPromise = this.findOne({name: newProduct.name});
-        await findPromise.then( async (result, error) => {
-            if (error) {
-                response = {
-                    success: false,
-                    message: "error in find",
-                    data: error
-                }
-            }
-            else {
-                if (result) {
-                    response = {
-                        success: false,
-                        message: "duplicate data found, cannot create",
-                        data: null
-                    }
-                }
-                else {
-                    let createPromise = this.create(newProduct);
-                    await createPromise.then((result, error) => {
-                        if (error) {
-                            response = {
-                                success: false,
-                                message: "error in create",
-                                data: error
-                            }
-                        }
-                        else {
-                            response = {
-                                success: true,
-                                message: "data created",
-                                data: result
-                            }
-                        }
-                    });
-                }
-            }
-        })     
+      let createPromise = this.create(newProduct);
+      await createPromise.then((result, error) => {
+          if (error) {
+              response = {
+                  success: false,
+                  message: "error in create",
+                  data: error
+              }
+          }
+          else {
+              response = {
+                  success: true,
+                  message: "data created",
+                  data: result
+              }
+          }
+      });
+        // let findPromise = this.findOne({name: newProduct.name});
+        // await findPromise.then( async (result, error) => {
+        //     if (error) {
+        //         response = {
+        //             success: false,
+        //             message: "error in find",
+        //             data: error
+        //         }
+        //     }
+        //     else {
+        //         if (result) {
+        //             response = {
+        //                 success: false,
+        //                 message: "duplicate data found, cannot create",
+        //                 data: null
+        //             }
+        //         }
+        //         else {
+        //             let createPromise = this.create(newProduct);
+        //             await createPromise.then((result, error) => {
+        //                 if (error) {
+        //                     response = {
+        //                         success: false,
+        //                         message: "error in create",
+        //                         data: error
+        //                     }
+        //                 }
+        //                 else {
+        //                     response = {
+        //                         success: true,
+        //                         message: "data created",
+        //                         data: result
+        //                     }
+        //                 }
+        //             });
+        //         }
+        //     }
+        // })     
     }
     else {
         response = {

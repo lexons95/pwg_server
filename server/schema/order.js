@@ -25,6 +25,7 @@ const schema = gql`
     total: Float!
     customer: JSONObject
     remark: String
+    charges: [JSONObject]
 
     paid: Boolean!
     sentOut: Boolean!

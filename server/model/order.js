@@ -17,6 +17,7 @@ const orderSchema = new Schema({
     type: String,
     default: ""
   },
+  charges: Object,
   paid: {
     type: Boolean,
     default: false
