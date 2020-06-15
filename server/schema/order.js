@@ -20,6 +20,7 @@ const schema = gql`
     createdAt: Date
     updatedAt: Date
 
+    type: String
     items: [JSONObject]
     deliveryFee: Float
     total: Float!

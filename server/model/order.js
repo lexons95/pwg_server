@@ -6,6 +6,7 @@ const { Schema } = mongoose;
 const orderSchema = new Schema({
   createdAt: Date,
   updatedAt: Date,
+  type: String,
   items: {
     type: Array,
     default: []
