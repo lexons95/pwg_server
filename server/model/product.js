@@ -18,7 +18,7 @@ const productSchema = new Schema({
     },
     type: {
       type: String,
-      default: '0'
+      default: ""
     },
     published: {
         type: Boolean,

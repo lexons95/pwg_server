@@ -43,7 +43,7 @@ const resolvers = {
             if (checkStockResult && checkStockResult.success) {
               const newOrderObj = Object.assign({},args.order);
               let createResult = await collection_order.createOrder(newOrderObj);
-              console.log('createResult',createResult)
+              // console.log('createResult',createResult)
               if (createResult && createResult.success) {
                 let bulkUpdateResult = await collection_inventory.bulkModifyInventory(createResult.data, 'decrease');
                 return {...bulkUpdateResult, data: createResult.data};

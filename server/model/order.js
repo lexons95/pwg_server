@@ -70,7 +70,6 @@ orderSchema.static('createOrder', async function(obj = null) {
 
   let createPromise = this.create(obj)
   await createPromise.then((result, err)=>{
-    console.log(result)
     if (!err) {
       response = {
         success: true,

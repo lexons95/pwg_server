@@ -4,13 +4,16 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
-  username: String,
-  password: String,
-  role: String,
-  icNum: String,
-  name: String,
-  contact: String,
-  tokenCount: Number 
+    username: String,
+    password: String,
+    role: {
+        type: String,
+        default: 'TENANT'
+    },
+    icNum: String,
+    name: String,
+    contact: String,
+    tokenCount: Number 
 },{timestamps: true});
 
 userSchema.static('getUsers', function(obj = {}) {
