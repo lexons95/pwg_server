@@ -24,22 +24,6 @@ const run = async () => {
   app.use(cookieParser()); // cookieParser need to be placed before other app.use 
   app.use(validateTokensMiddleware);
 
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: ({ req, res }) => {
-      // console.log("ApolloServer",req.cookies['access'])
-      // console.log("ApolloServer",req.cookies)
-      if (req) {
-        return {
-          user: req.user ? req.user : null,
-          req,
-          res
-        }
-      }
-    }
-  });
-
   const WHITE_LIST = [`http://localhost:${PORT}`, 'http://localhost:3001', 'http://localhost:3003']
   // if (process.env.WHITE_LIST) {
   //   WHITE_LIST.push(process.env.WHITE_LIST)
@@ -57,8 +41,25 @@ const run = async () => {
   };
   app.use(cors(corsOptions));
   // app.use(cors());
+
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: ({ req, res }) => {
+      // console.log("ApolloServer",req.cookies['access'])
+      // console.log("ApolloServer",req.cookies)
+      if (req) {
+        return {
+          user: req.user ? req.user : null,
+          req,
+          res
+        }
+      }
+    }
+  });
   
   server.applyMiddleware({ app, cors: false });
+  // server.applyMiddleware({ app });
 // console.log("initDbConnection",connect.initDbConnection)
   global.connection = connect.initDbConnection();
   app.listen({ port: PORT }, () =>
