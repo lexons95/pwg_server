@@ -40,7 +40,7 @@ const run = async () => {
     }
   });
 
-  const WHITE_LIST = [`http://localhost:${PORT}`, 'http://localhost:3003']
+  const WHITE_LIST = [`http://localhost:${PORT}`, 'http://localhost:3001', 'http://localhost:3003']
   // if (process.env.WHITE_LIST) {
   //   WHITE_LIST.push(process.env.WHITE_LIST)
   // }
