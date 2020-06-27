@@ -9,7 +9,10 @@ export const createToken = async (obj, expiresIn=null) => {
     const sevenDays = 60 * 60 * 24 * 7 * 1000;
     const mins_30 = 60 * 30 * 1000;
 
-    let expiresInResult = expiresIn ? expiresIn : mins_30;
+    const accessDuration = 60 * 30 * 1000; // 30 min
+    const refreshDuration = 60 * 60 * 24 * 3 * 1000; // 3 days
+
+    let expiresInResult = expiresIn ? expiresIn : accessDuration;
 
     const accessToken = await sign(
         { data: obj },
@@ -19,7 +22,7 @@ export const createToken = async (obj, expiresIn=null) => {
     const refreshToken = await sign(
         { data: obj },
         refresh_token_key,
-        { expiresIn: sevenDays }
+        { expiresIn: refreshDuration }
     )
     return { accessToken, refreshToken };
 }
