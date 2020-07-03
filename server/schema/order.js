@@ -3,6 +3,7 @@ import { gql } from 'apollo-server-express';
 const schema = gql`
   extend type Query {
     orders(filter: JSONObject, configId: String): [Order]!
+    searchOrders(filter: String!, configId: String): [Order]!
     order(_id: String!) : Order
   }
   extend type Mutation {

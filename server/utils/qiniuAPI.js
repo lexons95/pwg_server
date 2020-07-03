@@ -105,7 +105,8 @@ const qiniuAPI = (bucketName = null) => {
       // })
 
       copyOperations = [
-        qiniu.rs.copyOp(srcBucket, 'logo.png', targetBucket, 'logo.png'),
+        qiniu.rs.copyOp(srcBucket, 'saas_logo_1593164963911_100105745_703803090422350_7103922744202362880_n.jpg', targetBucket, 'saas_logo_1593164963911_100105745_703803090422350_7103922744202362880_n.jpg'),
+        qiniu.rs.copyOp(srcBucket, 'saas_payment_1592233166580_WechatIMG22817.jpeg', targetBucket, 'saas_payment_1592233166580_WechatIMG22817.jpeg'),
         //qiniu.rs.copyOp(srcBucket, 'saas_payment_1590629388851_wechatPayQR copy.jpg', targetBucket, 'saas_payment_1590629388851_wechatPayQR copy.jpg')
       ]
       return new Promise((resolve, reject) => {
@@ -130,12 +131,12 @@ const qiniuAPI = (bucketName = null) => {
                 resolve({
                   success: true,
                   message: "All copied",
-                  data: {}
+                  data: {respBody}
                 })
               } else {
                 reject({
                   success: false,
-                  message: "Something wrong during delete but jobs completed",
+                  message: "Something wrong during copy but jobs completed",
                   data: {}
                 })
               }

@@ -85,7 +85,7 @@ const resolvers = {
       let loggedInUser = context.req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
       // let newBucketName = args.targetBucketName;
-      let newBucketName = "mananml-2";
+      let newBucketName = "mananml-3";
       const db_base = await global.connection.useDb("base"); 
       const collection_config = await db_base.collection("config");
       if (dbName) {

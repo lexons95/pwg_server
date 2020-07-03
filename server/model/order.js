@@ -61,6 +61,27 @@ orderSchema.static('getOrders', function(filterObj = null) {
   return this.find(filterResult).sort(sorterResult).skip(skipResult).limit(limitResult);
 });
 
+orderSchema.static('searchOrders', function(filterObj = null) {
+  let filterResult = {};
+  let sorterResult = {};
+  let skipResult = 0;
+  let limitResult = 0;
+
+  if (filterObj) {
+      // let obj = filterObj.filter ? filterObj.filter : {};
+      // filterResult = obj.filter ? obj.filter : {};
+      let obj = {};
+      let sorter = obj.sorter ? obj.sorter : {};
+      sorterResult = Object.assign({},sorter);
+
+      skipResult = obj.skip ? obj.skip : 0;
+      limitResult = obj.limit ? obj.limit : 0;
+
+      return this.find({'customer.contact': filterObj}).sort(sorterResult).skip(skipResult).limit(limitResult);
+  }
+  return [];
+});
+
 orderSchema.static('createOrder', async function(obj = null) {
   let response = {
     success: false,
