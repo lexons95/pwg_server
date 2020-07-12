@@ -35,7 +35,9 @@ export const tokenCookies = ({ accessToken, refreshToken }) => {
         promo_shown: 1,
         //sameSite: 'None',
         //secure: true,
-        SameSite: 'Strict'
+        //SameSite: 'Strict'
+        sameSite: 'lax'
+
     };
     return {
         access: ["access-saas", accessToken, cookieOptions],

@@ -10,6 +10,11 @@ const inventorySchema = new Schema({
   price: Number,
   stock: Number,
   weight: Number,
+  onSale: {
+    type: Boolean,
+    default: false
+  },
+  salePrice: Number,
   variants: Object,
   description: String,
   published: Boolean,

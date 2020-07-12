@@ -24,7 +24,7 @@ const run = async () => {
   app.use(cookieParser()); // cookieParser need to be placed before other app.use 
   app.use(validateTokensMiddleware);
 
-  const WHITE_LIST = [`http://localhost:${PORT}`, 'http://localhost:3001', 'http://localhost:3003']
+  const WHITE_LIST = [`http://localhost:${PORT}`, 'http://localhost:3001', 'http://localhost:3003', 'http://pwg.mananml.shop', 'http://store.mananml.shop', 'http://www.klklvapor.store']
   // if (process.env.WHITE_LIST) {
   //   WHITE_LIST.push(process.env.WHITE_LIST)
   // }
@@ -33,8 +33,8 @@ const run = async () => {
       if (WHITE_LIST.indexOf(origin) !== -1) {
           callback(null, true)
       } else {
-          // callback(new Error("Not allowed by CORS"))
-          callback(null, true)
+          callback(new Error("Not allowed by CORS"))
+          // callback(null, true)
       }
     },
     credentials: true
