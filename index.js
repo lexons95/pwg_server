@@ -39,8 +39,7 @@ const run = async () => {
     },
     credentials: true
   };
-  app.use(cors(corsOptions));
-  // app.use(cors());
+  // app.use(cors(corsOptions));
 
   const server = new ApolloServer({
     typeDefs,
@@ -58,7 +57,8 @@ const run = async () => {
     }
   });
   
-  server.applyMiddleware({ app, cors: false });
+  // server.applyMiddleware({ app, cors: false });
+  server.applyMiddleware({ app, cors: corsOptions });
   // server.applyMiddleware({ app });
 // console.log("initDbConnection",connect.initDbConnection)
   global.connection = connect.initDbConnection();
