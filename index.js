@@ -33,13 +33,14 @@ const run = async () => {
       if (WHITE_LIST.indexOf(origin) !== -1) {
           callback(null, true)
       } else {
-          callback(new Error("Not allowed by CORS"))
-          // callback(null, true)
+          // callback(new Error("Not allowed by CORS"))
+          callback(null, true)
       }
     },
     credentials: true
   };
-  // app.use(cors(corsOptions));
+  app.use(cors(corsOptions));
+  // app.use(cors());
 
   const server = new ApolloServer({
     typeDefs,
@@ -57,8 +58,8 @@ const run = async () => {
     }
   });
   
-  // server.applyMiddleware({ app, cors: false });
-  server.applyMiddleware({ app, cors: corsOptions });
+  server.applyMiddleware({ app, cors: false });
+  // server.applyMiddleware({ app, cors: corsOptions });
   // server.applyMiddleware({ app });
 // console.log("initDbConnection",connect.initDbConnection)
   global.connection = connect.initDbConnection();
