@@ -13,7 +13,10 @@ const userSchema = new Schema({
     icNum: String,
     name: String,
     contact: String,
-    tokenCount: Number 
+    tokenCount: {
+        type: Number,
+        default: 0
+    } 
 },{timestamps: true});
 
 userSchema.static('getUsers', function(obj = {}) {

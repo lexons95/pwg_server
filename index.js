@@ -19,10 +19,23 @@ const PORT = process.env.PORT;
 
 const run = async () => {
 
-  const app = express();
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: ({ req, res }) => {
+      // console.log("ApolloServer",req.cookies['access'])
+      // console.log("ApolloServer",req.cookies)
+      if (req) {
+        return {
+          user: req.user ? req.user : null,
+          req,
+          res
+        }
+      }
+    }
+  });
 
-  app.use(cookieParser()); // cookieParser need to be placed before other app.use 
-  app.use(validateTokensMiddleware);
+  const app = express();
 
   const WHITE_LIST = [`http://localhost:${PORT}`, 'http://localhost:3001', 'http://localhost:3003', 'http://pwg.mananml.shop', 'http://store.mananml.shop', 'http://www.klklvapor.store']
   // if (process.env.WHITE_LIST) {
@@ -39,30 +52,21 @@ const run = async () => {
     },
     credentials: true
   };
-  // app.use(cors(corsOptions));
-  app.use(cors());
 
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: ({ req, res }) => {
-      // console.log("ApolloServer",req.cookies['access'])
-      // console.log("ApolloServer",req.cookies)
-      if (req) {
-        return {
-          user: req.user ? req.user : null,
-          req,
-          res
-        }
-      }
-    }
-  });
+  app.use(cors(corsOptions));
+  app.use(cookieParser()); // cookieParser need to be placed before other app.use 
+
+  app.use(validateTokensMiddleware);
+
+
   
   server.applyMiddleware({ app, cors: false });
   // server.applyMiddleware({ app, cors: corsOptions });
   // server.applyMiddleware({ app });
-// console.log("initDbConnection",connect.initDbConnection)
+
+  // console.log("initDbConnection",connect.initDbConnection)
   global.connection = connect.initDbConnection();
+
   app.listen({ port: PORT }, () =>
     console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`)
   )

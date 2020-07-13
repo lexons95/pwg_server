@@ -29,12 +29,12 @@ const resolvers = {
 
         return await collection_user.findOne(args);
       },
-      loggedInUser: async (_, args={}, context) => {
-        // if (!context.req.user) throw new AuthenticationError("Must authenticate");
-        if (context.req.user) {
+      loggedInUser: async (_, args={}, { req }) => {
+        // if (!req.user) throw new AuthenticationError("Must authenticate");
+        if (req.user) {
           const db_base = await global.connection.useDb("base");
           const collection_user = await db_base.model("User",UserModel.schema,'user');
-          return await collection_user.findOneUser({username: context.req.user.username});
+          return await collection_user.findOneUser({username: req.user.username});
         }
         else {
           return {
@@ -115,7 +115,7 @@ const resolvers = {
         })
         return response;
       },
-      login: async (_, args={}, context) => {
+      login: async (_, args={}, { res }) => {
         const db_base = await global.connection.useDb("base");
         const collection_user = await db_base.model("User",UserModel.schema,'user');
 
@@ -134,8 +134,8 @@ const resolvers = {
                 let newAccessToken = await createToken(tokenData);
                 const cookies = tokenCookies(newAccessToken);
 
-                context.res.cookie(...cookies.access);
-                context.res.cookie(...cookies.refresh);
+                res.cookie(...cookies.access);
+                res.cookie(...cookies.refresh);
                 return userFoundResult;
             }
             else {
@@ -148,16 +148,32 @@ const resolvers = {
         }
         return userFoundResult;
       },
-      logout: async (_, args={}, context) => {
+      logout: async (_, args={}, { res }) => {
         
-        context.res.clearCookie("access-saas");
-        context.res.clearCookie("refresh-saas");
+        res.clearCookie("access-saas");
+        res.clearCookie("refresh-saas");
         
         return await {
           success: true,
           message: "Logout Success",
           data: null
         }
+      },
+      invalidateTokens: async (_, __, { req }) => {
+        if (!req.user) {
+          return false;
+        }
+  
+        // const user = await User.findOne(req.userId);
+        // if (!user) {
+        //   return false;
+        // }
+        // user.count += 1;
+        // await user.save();
+  
+        // res.clearCookie('access-token')
+  
+        return true;
       }
 
         

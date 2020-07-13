@@ -15,6 +15,7 @@ const schema = gql`
     changeUserPassword(_id: String!, password: String!): Response!
     login(user: JSONObject): Response
     logout: Response
+    invalidateTokens: Boolean!
   }
 
   type User {
@@ -25,7 +26,7 @@ const schema = gql`
     role: String,,
     configId: String,
     profile: UserProfile,
-    tokenCount: Float
+    tokenCount: Int
   }
 
   type UserProfile {

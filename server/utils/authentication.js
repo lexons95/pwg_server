@@ -7,12 +7,9 @@ const accessTokenHeaderLabel = "access-saas";
 const refreshTokenHeaderLabel = "refresh-saas";
 // validate token and find user using the token from request headers for every request from client
 export const validateTokensMiddleware = async (req, res, next) => {
-  // console.log('validateTokensMiddleware',req)
-  // console.log("reqqqq",req.cookies[accessTokenHeaderLabel])
-    const accessToken = req.cookies[accessTokenHeaderLabel] ? req.cookies[accessTokenHeaderLabel] : null;
-    const refreshToken = req.cookies[refreshTokenHeaderLabel] ? req.cookies[refreshTokenHeaderLabel] : null;
-    // const accessToken = null;
-    // const refreshToken = null;
+
+    const accessToken = req.cookies[accessTokenHeaderLabel];
+    const refreshToken = req.cookies[refreshTokenHeaderLabel];
 
     if (!accessToken && !refreshToken) return next();
 
@@ -24,34 +21,34 @@ export const validateTokensMiddleware = async (req, res, next) => {
 
     const decodedRefreshToken = validateRefreshToken(refreshToken);
 
-    if (decodedRefreshToken && decodedRefreshToken.data) {
-        // valid refresh token
-        const db_base = await global.connection.useDb("base");
-        const collection_user = await db_base.model("User",UserModel.schema,'user');
-        let authResult = await collection_user.authenticate({_id: decodedRefreshToken._id, username,password});
-        let user = null;
-        if (authResult.success && authResult.data) {
-            user = userFoundRespond.data;
-        }
-        // valid user and user token not invalidated
-        if (!user || user.tokenCount !== decodedRefreshToken.data.tokenCount)
-        return next();
-        req.user = decodedRefreshToken.data;
-        // refresh the tokens
-        const userTokens = createToken(user);
-        const cookies = tokenCookies(userTokens);
-
-        context.res.cookie(...cookies.access);
-        context.res.cookie(...cookies.refresh);
-
-        // let newRes = {}
-        // newRes["Access-Control-Expose-Headers"] = accessTokenHeaderLabel + "," + refreshTokenHeaderLabel;
-        // newRes[accessTokenHeaderLabel] = userTokens.accessToken;
-        // newRes[refreshTokenHeaderLabel] = userTokens.refreshToken;
-
-        res.set(newRes);
+    if (!refreshToken) {
         return next();
     }
+
+    if (!decodedRefreshToken || !decodedRefreshToken.data) {
+        return next();
+    }
+
+    const db_base = await global.connection.useDb("base");
+    const collection_user = await db_base.model("User",UserModel.schema,'user');
+    let authResult = await collection_user.findOneUser({_id: decodedRefreshToken._id});
+
+    let user = null;
+    if (authResult.success && authResult.data) {
+        user = userFoundRespond.data;
+    }
+    
+    // valid user and user token not invalidated
+    if (!user || user.tokenCount !== decodedRefreshToken.data.tokenCount)
+    return next();
+    // refresh the tokens
+    const userTokens = createToken(user);
+    const cookies = tokenCookies(userTokens);
+
+    context.res.cookie(...cookies.access);
+    context.res.cookie(...cookies.refresh);
+    req.user = decodedRefreshToken.data;
+
     next();
 }
 

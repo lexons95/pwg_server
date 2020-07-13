@@ -10,7 +10,7 @@ export const createToken = async (obj, expiresIn=null) => {
     const mins_30 = 60 * 30 * 1000;
 
     const accessDuration = 60 * 30 * 1000; // 30 min
-    const refreshDuration = 60 * 60 * 24 * 3 * 1000; // 3 days
+    const refreshDuration = 60 * 60 * 24 * 7 * 1000; // 7 days
 
     let expiresInResult = expiresIn ? expiresIn : accessDuration;
 
@@ -32,16 +32,21 @@ export const tokenCookies = ({ accessToken, refreshToken }) => {
         httpOnly: true,
         // secure: true, //for HTTPS only
         // domain: "your-website.com",
-        promo_shown: 1,
-        sameSite: 'None',
-        secure: true,
+        // promo_shown: 1,
+        // sameSite: 'None',
+        // secure: true,
         //sameSite: 'Strict'
         //sameSite: 'lax'
-
     };
+
+    const accessDuration = 60 * 30 * 1000; // 30 min
+    const refreshDuration = 60 * 60 * 24 * 7 * 1000; // 7 days
+
+    let accessTokenCookieOptions = {...cookieOptions, expiresIn: accessDuration}
+    let refreshTokenCookieOptions = {...cookieOptions, expiresIn: refreshDuration}
     return {
-        access: ["access-saas", accessToken, cookieOptions],
-        refresh: ["refresh-saas", refreshToken, cookieOptions]
+        access: ["access-saas", accessToken, accessTokenCookieOptions],
+        refresh: ["refresh-saas", refreshToken, refreshTokenCookieOptions]
     };
 }
 

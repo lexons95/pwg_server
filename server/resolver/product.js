@@ -6,9 +6,10 @@ import { editorOnly } from '../utils/authentication';
 
 const resolvers = {
   Query: {
-    products: async (_, args=null, context) => {
-      let loggedInUser = context.req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+    products: async (_, args=null, { req }) => {
+      let loggedInUser = req.user;
+      // let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      let dbName = args.configId;
       const db_base = await global.connection.useDb(dbName);
       const collection_product = await db_base.model("Product",ProductModel.schema,'product');
 
@@ -22,8 +23,8 @@ const resolvers = {
       
   },
   Mutation: {
-    createProduct: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    createProduct: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
@@ -39,8 +40,8 @@ const resolvers = {
         data: {}
       };
     }),
-    createProducts: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    createProducts: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
@@ -56,8 +57,8 @@ const resolvers = {
         data: {}
       };
     }),
-    updateProduct: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    updateProduct: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
@@ -79,8 +80,8 @@ const resolvers = {
         data: {}
       };
     }),
-    deleteProduct: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    deleteProduct: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser.configId;
       if (dbName || args._id) {
         const db_base = await global.connection.useDb(dbName);
@@ -94,8 +95,8 @@ const resolvers = {
         data: {}
       };
     }),
-    updateProductPublish: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    updateProductPublish: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
