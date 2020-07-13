@@ -33,10 +33,10 @@ export const tokenCookies = ({ accessToken, refreshToken }) => {
         // secure: true, //for HTTPS only
         // domain: "your-website.com",
         promo_shown: 1,
-        //sameSite: 'None',
-        //secure: true,
-        //SameSite: 'Strict'
-        sameSite: 'lax'
+        sameSite: 'None',
+        secure: true,
+        //sameSite: 'Strict'
+        //sameSite: 'lax'
 
     };
     return {
