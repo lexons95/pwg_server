@@ -39,8 +39,8 @@ const run = async () => {
     },
     credentials: true
   };
-  app.use(cors(corsOptions));
-  // app.use(cors());
+  // app.use(cors(corsOptions));
+  app.use(cors());
 
   const server = new ApolloServer({
     typeDefs,
