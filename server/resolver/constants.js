@@ -1,6 +1,7 @@
 import { AuthenticationError, ApolloError } from 'apollo-server-express';
 import qiniuAPI from '../utils/qiniuAPI';
 import { editorOnly } from '../utils/authentication';
+import awsS3API from '../utils/awsS3API';
 
 const resolvers = {
   Query: {
@@ -25,8 +26,8 @@ const resolvers = {
         return new ApolloError("Config not found");
       }
     },
-    qiniuToken: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    qiniuToken: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
       const db_base = await global.connection.useDb("base"); 
       const collection_config = await db_base.collection("config");
@@ -49,11 +50,26 @@ const resolvers = {
       else {
         return new ApolloError("Failed to get token");
       }
+    }),
+    getS3PutUrl: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      if (dbName) {
+        let AWSS3API = await awsS3API();
+        let urlResult = await AWSS3API.generatePutUrl(dbName, args.Key, args.ContentType)
+        return {
+          success: true,
+          message: "URL generated",
+          data: urlResult
+        }
+      }
+      return new ApolloError("Config not found");
+      
     })
   },
   Mutation: {
-    qiniuBatchDelete: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    qiniuBatchDelete: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
       const db_base = await global.connection.useDb("base"); 
       const collection_config = await db_base.collection("config");
@@ -81,11 +97,14 @@ const resolvers = {
         return new ApolloError("Failed to get token");
       }
     }),
-    qiniuBatchCopy: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+    qiniuBatchCopy: editorOnly( async (_, args={}, { req }) => {
+      const { user } = req;
+      let loggedInUser = user ? user._id : null;
+      //let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      let dbName = 'klklvapor';
       // let newBucketName = args.targetBucketName;
-      let newBucketName = "mananml-3";
+      // let newBucketName = "mananml-3";
+      let newBucketName = "klklvapor-2";
       const db_base = await global.connection.useDb("base"); 
       const collection_config = await db_base.collection("config");
       if (dbName) {
@@ -112,8 +131,27 @@ const resolvers = {
         return new ApolloError("Failed to get token");
       }
     }),
-    updateConfig: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    s3Delete: editorOnly( async (_, args={}, context) => {
+      let AWSS3API = await awsS3API();
+      
+    }),
+    s3UploadOne: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      if (dbName) {
+        let AWSS3API = await awsS3API();
+        let uploadResult = await AWSS3API.uploadOne(dbName, args.name, args.file)
+        uploadResult.then(result=>{
+          return result;
+        }).catch(err=>{
+          console.log('Upload err',err)
+          return new ApolloError("Upload failed");
+        });
+      }
+      return new ApolloError("Config not found");
+    }),
+    updateConfig: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       if (dbName) {
         const db_base = await global.connection.useDb("base"); 

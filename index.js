@@ -23,15 +23,7 @@ const run = async () => {
     typeDefs,
     resolvers,
     context: ({ req, res }) => {
-      // console.log("ApolloServer",req.cookies['access'])
-      // console.log("ApolloServer",req.cookies)
-      if (req) {
-        return {
-          user: req.user ? req.user : null,
-          req,
-          res
-        }
-      }
+      return { req, res }
     }
   });
 
@@ -54,18 +46,16 @@ const run = async () => {
   };
 
   app.use(cors(corsOptions));
-  app.use(cookieParser()); // cookieParser need to be placed before other app.use 
+  app.use(cookieParser()); // cookieParser need to be placed before other app.use which uses cookie
 
   app.use(validateTokensMiddleware);
-
-
   
   server.applyMiddleware({ app, cors: false });
   // server.applyMiddleware({ app, cors: corsOptions });
   // server.applyMiddleware({ app });
 
   // console.log("initDbConnection",connect.initDbConnection)
-  global.connection = connect.initDbConnection();
+  global.connection = await connect.initDbConnection();
 
   app.listen({ port: PORT }, () =>
     console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`)

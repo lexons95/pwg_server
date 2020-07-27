@@ -4,8 +4,8 @@ import { editorOnly } from '../utils/authentication';
 
 const resolvers = {
   Query: {
-    inventory: async (_, args=null, context) => {
-      let loggedInUser = context.req.user;
+    inventory: async (_, args=null, { req }) => {
+      let loggedInUser = req.user;
       let dbName = args.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
@@ -17,8 +17,8 @@ const resolvers = {
       
   },
   Mutation: {
-    bulkUpdateInventory: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    bulkUpdateInventory: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
@@ -33,8 +33,8 @@ const resolvers = {
         data: {}
       };
     }),
-    updateInventoryPublish: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    updateInventoryPublish: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
@@ -49,8 +49,8 @@ const resolvers = {
         data: {}
       };
     })
-    // createProduct: async (_, args={}, context) => {
-    //   let loggedInUser = context.req.user;
+    // createProduct: async (_, args={}, { req }) => {
+    //   let loggedInUser = req.user;
     //   let dbName = loggedInUser.configId;
     //   if (dbName) {
     //     const db_base = await global.connection.useDb(dbName);
@@ -66,8 +66,8 @@ const resolvers = {
     //     data: {}
     //   };
     // },
-    // updateProduct: async (_, args={}, context) => {
-    //   let loggedInUser = context.req.user;
+    // updateProduct: async (_, args={}, { req }) => {
+    //   let loggedInUser = req.user;
     //   let dbName = loggedInUser.configId;
     //   if (dbName) {
     //     const db_base = await global.connection.useDb(dbName);
@@ -83,8 +83,8 @@ const resolvers = {
     //     data: {}
     //   };
     // },
-    // deleteProduct: async (_, args={}, context) => {
-    //   let loggedInUser = context.req.user;
+    // deleteProduct: async (_, args={}, { req }) => {
+    //   let loggedInUser = req.user;
     //   let dbName = loggedInUser.configId;
     //   if (dbName || args._id) {
     //     const db_base = await global.connection.useDb(dbName);

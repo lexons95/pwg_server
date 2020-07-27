@@ -1,21 +1,26 @@
 import { combineResolvers, skip } from 'graphql-resolvers';
 import { AuthenticationError } from "apollo-server-express";
-import { createToken, tokenCookies, validateAccessToken, validateRefreshToken } from "./token";
+import { setAuthCookies, getAuthCookies, validateAccessToken, validateRefreshToken } from "./token";
 import UserModel from '../model/user';
 
-const accessTokenHeaderLabel = "access-saas";
-const refreshTokenHeaderLabel = "refresh-saas";
+const reqUserKey = 'user';
+
 // validate token and find user using the token from request headers for every request from client
 export const validateTokensMiddleware = async (req, res, next) => {
 
-    const accessToken = req.cookies[accessTokenHeaderLabel];
-    const refreshToken = req.cookies[refreshTokenHeaderLabel];
+    let cookieKey = 'TENANT';
+    let accessCookieLabel = 'saas-access-' + cookieKey; 
+    let refreshCookieLabel = 'saas-refresh-' + cookieKey;
+
+    const accessToken = req.cookies[accessCookieLabel];
+    const refreshToken = req.cookies[refreshCookieLabel];
 
     if (!accessToken && !refreshToken) return next();
 
     const decodedAccessToken = validateAccessToken(accessToken);
     if (decodedAccessToken && decodedAccessToken.data) {
-        req.user = decodedAccessToken.data;
+        req[reqUserKey] = decodedAccessToken.data;
+
         return next();
     }
 
@@ -25,29 +30,35 @@ export const validateTokensMiddleware = async (req, res, next) => {
         return next();
     }
 
-    if (!decodedRefreshToken || !decodedRefreshToken.data) {
+    if (!decodedRefreshToken) {
         return next();
     }
 
     const db_base = await global.connection.useDb("base");
     const collection_user = await db_base.model("User",UserModel.schema,'user');
-    let authResult = await collection_user.findOneUser({_id: decodedRefreshToken._id});
+    let findUserResult = await collection_user.findOneUser({_id: decodedRefreshToken.data._id});
 
     let user = null;
-    if (authResult.success && authResult.data) {
-        user = userFoundRespond.data;
+    if (findUserResult.success && findUserResult.data) {
+        user = findUserResult.data;
     }
     
     // valid user and user token not invalidated
     if (!user || user.tokenCount !== decodedRefreshToken.data.tokenCount)
     return next();
-    // refresh the tokens
-    const userTokens = createToken(user);
-    const cookies = tokenCookies(userTokens);
 
-    context.res.cookie(...cookies.access);
-    context.res.cookie(...cookies.refresh);
-    req.user = decodedRefreshToken.data;
+    // refresh the tokens
+
+    await setAuthCookies(res, {
+        _id: user._id,
+        username: user.username,
+        role: user.role,
+        configId: user.configId,
+        tokenCount: user.tokenCount
+    })
+
+    req[reqUserKey] = user;
+
 
     next();
 }
@@ -70,7 +81,8 @@ export const validateTokensMiddleware = async (req, res, next) => {
 
 export const requiresRole = roles => resolver => {
     return (parent, args, context, info) => {
-        if (context.req.user && (!roles || roles.indexOf(context.req.user.role) >= 0)) {
+        //if (context.req.user && (!roles || roles.indexOf(context.req.user.role) >= 0)) {
+        if (context.req.user && context.req.user._id && (!roles || roles.indexOf(context.req.user.role) >= 0)) {
             return resolver(parent, args, context, info)
         } else {
             // return {
@@ -84,7 +96,7 @@ export const requiresRole = roles => resolver => {
 }
 
 export const tenantOnly = requiresRole(['TENANT'])
-export const editorOnly = requiresRole(['TENANT', 'ADMIN'])
+export const editorOnly = requiresRole(['TENANT', 'ADMIN', 'SUBTENANT'])
 
 //   const membersOnly = requiresRole('MEMBER')
 //   const adminsOnly = requiresRole('ADMIN')

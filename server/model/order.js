@@ -18,6 +18,10 @@ const orderSchema = new Schema({
     type: String,
     default: ""
   },
+  sellerRemark:  {
+    type: String,
+    default: ""
+  },
   charges: Object,
   paid: {
     type: Boolean,
@@ -109,8 +113,13 @@ orderSchema.static('updateOrderPayment', async function(obj = null) {
     message: "",
     data: {}
   }
+
+  let setter = {
+    paid: obj.paid,
+    status: obj.paid ? '1' : '0'
+  }
   
-  let updatePromise = this.findOneAndUpdate({_id: obj._id},{ $set: { paid: obj.paid }})
+  let updatePromise = this.findOneAndUpdate({_id: obj._id},{ $set: setter })
   await updatePromise.then((result, err)=>{
     if (!err) {
       response = {
@@ -131,16 +140,18 @@ orderSchema.static('updateOrderDelivery', async function(obj = null) {
     data: {}
   }
   let setter = {
-    trackingNum: ""
+    trackingNum: "",
   }
   if (obj.trackingNum) {
     setter['trackingNum'] = obj.trackingNum;
     setter['sentOut'] = true;
+    setter['status'] = '2';
   }
   else {
     setter['sentOut'] = false;
+    setter['status'] = '1';
   }
-  let updatePromise = this.findOneAndUpdate({_id: obj._id},{ $set: setter})
+  let updatePromise = this.findOneAndUpdate({_id: obj._id},{ $set: setter })
   await updatePromise.then((result, err)=>{
     if (!err) {
       response = {
@@ -170,6 +181,29 @@ orderSchema.static('updateOrderStatus', async function(obj = null) {
       response = {
         success: true,
         message: "",
+        data: result
+      } 
+    }
+  });
+
+  return response;
+})
+
+orderSchema.static('updateOrderSellerRemark', async function(obj = null) {
+  let response = {
+    success: false,
+    message: "",
+    data: {}
+  }
+
+  let { _id, ...restOrder } = obj;
+
+  let updatePromise = this.findOneAndUpdate({_id: _id },{ $set: restOrder })
+  await updatePromise.then((result, err)=>{
+    if (!err) {
+      response = {
+        success: true,
+        message: "Order Updated",
         data: result
       } 
     }

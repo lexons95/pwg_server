@@ -8,16 +8,16 @@ import { editorOnly } from '../utils/authentication';
 
 const resolvers = {
   Query: {
-    orders: editorOnly( async (_, args=null, context) => {
-      let loggedInUser = context.req.user;
+    orders: editorOnly( async (_, args=null, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       const db_base = await global.connection.useDb(dbName);
       const collection_order = await db_base.model("Order",OrderModel.schema,'order');
 
       return await collection_order.getOrders(args);
     }),
-    searchOrders: async (_, args=null, context) => {
-      let loggedInUser = context.req.user;
+    searchOrders: async (_, args=null, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       const db_base = await global.connection.useDb(dbName);
 
@@ -36,8 +36,8 @@ const resolvers = {
       
   },
   Mutation: {
-    createOrder: async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    createOrder: async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = args.configId;
       if (dbName) {
         if (args.order && args.order.items && args.order.items.length > 0) {
@@ -79,8 +79,8 @@ const resolvers = {
       };
 
     },
-    updateOrderPayment: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    updateOrderPayment: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
@@ -95,8 +95,8 @@ const resolvers = {
         data: {}
       };
     }),
-    updateOrderDelivery: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    updateOrderDelivery: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
@@ -111,8 +111,8 @@ const resolvers = {
         data: {}
       };
     }),
-    updateOrderStatus: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    updateOrderStatus: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
@@ -127,8 +127,8 @@ const resolvers = {
         data: {}
       };
     }),
-    cancelOrder: editorOnly( async (_, args={}, context) => {
-      let loggedInUser = context.req.user;
+    cancelOrder: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
@@ -148,7 +148,22 @@ const resolvers = {
         data: {}
       };
     }),
-      
+    updateOrderRemark: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      if (dbName) {
+        const db_base = await global.connection.useDb(dbName);
+        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
+        
+        let updateResult = await collection_order.updateOrderSellerRemark(args);
+        return updateResult;
+      }
+      return {
+        success: false,
+        message: "user config id not found",
+        data: {}
+      };
+    })
   }
   
 };

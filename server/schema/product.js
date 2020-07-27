@@ -18,6 +18,7 @@ const schema = gql`
     createdAt: Date
     updatedAt: Date
     name: String!
+    subName: String
     description: String
     category: [JSONObject]
     variants: JSONObject

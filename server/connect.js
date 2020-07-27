@@ -12,10 +12,10 @@ const clientOption = {
   useNewUrlParser: true,
   autoIndex: false
 };
-const option = { useNewUrlParser: true };
+const option = { useNewUrlParser: true, useUnifiedTopology: true };
 
-const initDbConnection = () => {
-  const db = mongoose.createConnection(CONNECTION_URL, option);
+const initDbConnection = async () => {
+  const db = await mongoose.createConnection(CONNECTION_URL, option);
   db.on("error", console.error.bind(console, "MongoDB Connection Error>> : "));
   db.once("open", function() {
     console.log("client MongoDB Connection ok!");

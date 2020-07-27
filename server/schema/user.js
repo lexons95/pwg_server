@@ -14,6 +14,7 @@ const schema = gql`
     loginUser(user: JSONObject!): Response!
     changeUserPassword(_id: String!, password: String!): Response!
     login(user: JSONObject): Response
+    login2(username: String!, password: String!): Response
     logout: Response
     invalidateTokens: Boolean!
   }

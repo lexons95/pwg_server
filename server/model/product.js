@@ -6,6 +6,7 @@ const { Schema } = mongoose;
 
 const productSchema = new Schema({
     name: String,
+    subName: String,
     description: String,
     category: {
         type: Array,

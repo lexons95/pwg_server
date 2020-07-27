@@ -1,7 +1,7 @@
 import { AuthenticationError, ApolloError } from 'apollo-server-express';
 import UserModel from '../model/user';
 import { createPassword } from '../utils/password';
-import { createToken, tokenCookies } from "../utils/token";
+import { setAuthCookies, deleteAuthCookies } from "../utils/token";
 
 const authenticate = role => resolver => {
   return (parent, args, context, info) => {
@@ -31,10 +31,11 @@ const resolvers = {
       },
       loggedInUser: async (_, args={}, { req }) => {
         // if (!req.user) throw new AuthenticationError("Must authenticate");
-        if (req.user) {
+        if (req.user && req.user._id) {
           const db_base = await global.connection.useDb("base");
           const collection_user = await db_base.model("User",UserModel.schema,'user');
-          return await collection_user.findOneUser({username: req.user.username});
+          // return await collection_user.findOneUser({username: req.user.username});
+          return await collection_user.findOneUser({_id: req.user._id});
         }
         else {
           return {
@@ -48,7 +49,7 @@ const resolvers = {
       }
     },
     Mutation: {
-      createUser: async (_, args={}, context) => {
+      createUser: async (_, args={}, { req }) => {
         const db_base = await global.connection.useDb("base");
         const collection_user = await db_base.model("User",UserModel.schema,'user');
 
@@ -59,19 +60,6 @@ const resolvers = {
 
         // create qiniu bucket, create config
         return createResult;
-        // if (createResult.success) {
-        //     let tokenData = {
-        //         _id: signUpResult.data._id, 
-        //         username: signUpResult.data.username, 
-        //         role: signUpResult.data.role, 
-        //         tokenCount: signUpResult.data.tokenCount
-        //     }
-        //     let newAccessToken = await createToken(tokenData);
-        //     return Object.assign({},signUpResult, { accessToken: newAccessToken })
-        // }
-        // else {
-        //     return signUpResult;
-        // }
       },
       // loginUser: async (_, args={}, context) => {
       //   console.log("loginUser",args)
@@ -90,7 +78,7 @@ const resolvers = {
       //   };
       // },
 
-      changeUserPassword: async (_, args={}, context) => {
+      changeUserPassword: async (_, args={}, { req }) => {
         const db_base = await global.connection.useDb("base");
         const collection_user = await db_base.model("User",UserModel.schema,'user');
         let newHashPassword = createPassword(args.password);
@@ -124,18 +112,16 @@ const resolvers = {
         if (userFoundResult.success) {
             const isValidPassword = await userFoundResult.data.validatePassword(args.user.password);
             if (isValidPassword) {
-                // let tokenData = {
-                //     _id: userFoundResult.data._id, 
-                //     username: userFoundResult.data.username, 
-                //     role: userFoundResult.data.role, 
-                //     tokenCount: userFoundResult.data.tokenCount
-                // }
-                let tokenData = userFoundResult.data;
-                let newAccessToken = await createToken(tokenData);
-                const cookies = tokenCookies(newAccessToken);
+                let tokenData = JSON.parse(JSON.stringify(userFoundResult.data));
+     
+                await setAuthCookies(res, {
+                  _id: tokenData._id,
+                  username: tokenData.username,
+                  role: tokenData.role,
+                  configId: tokenData.configId,
+                  tokenCount: tokenData.tokenCount
+                })
 
-                res.cookie(...cookies.access);
-                res.cookie(...cookies.refresh);
                 return userFoundResult;
             }
             else {
@@ -148,12 +134,39 @@ const resolvers = {
         }
         return userFoundResult;
       },
-      logout: async (_, args={}, { res }) => {
+      login2: async (_, { username, password }, { res }) => {
+        const db_base = await global.connection.useDb("base");
+        const collection_user = await db_base.model("User",UserModel.schema,'user');
+
+        let userFoundResult = await collection_user.findOneUser({ username: username });
+        if (userFoundResult.success) {
+            const isValidPassword = await userFoundResult.data.validatePassword(password);
+            if (isValidPassword) {
+                let tokenData = JSON.parse(JSON.stringify(userFoundResult.data));
+                await setAuthCookies(res, {
+                  _id: tokenData._id,
+                  username: tokenData.username,
+                  role: tokenData.role,
+                  configId: tokenData.configId,
+                  tokenCount: tokenData.tokenCount
+                })
+
+                return userFoundResult;
+            }
+            else {
+                return {
+                    success: false,
+                    message: "Failed to validate password",
+                    data: null
+                }
+            }
+        }
+        return userFoundResult;
+      },
+      logout: async (_, args={}, { req, res }) => {
+        deleteAuthCookies(res, "TENANT");
         
-        res.clearCookie("access-saas");
-        res.clearCookie("refresh-saas");
-        
-        return await {
+        return {
           success: true,
           message: "Logout Success",
           data: null
@@ -164,6 +177,18 @@ const resolvers = {
           return false;
         }
   
+        const db_base = await global.connection.useDb("base");
+        const collection_user = await db_base.model("User",UserModel.schema,'user');
+
+        let username = { username: req.user._id }
+        let userFoundResult = await collection_user.findOneUser(username);
+
+        if (!userFoundResult || !userFoundResult.success) {
+          return false;
+        } 
+
+        await collection_user.findOneAndUpdate({_id: userFoundResult.data._id}, { $inc: {tokenCount: 1} });
+
         // const user = await User.findOne(req.userId);
         // if (!user) {
         //   return false;

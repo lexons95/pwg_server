@@ -59,6 +59,7 @@ const resolvers = {
     }),
     updateProduct: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
+      console.log('loggedInUser',loggedInUser)
       let dbName = loggedInUser.configId;
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
