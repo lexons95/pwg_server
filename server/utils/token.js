@@ -51,6 +51,7 @@ export const tokenCookies = ({ accessToken, refreshToken }) => {
 export const setAuthCookies = async (res, user, expiresIn=null) => {
 
     let { accessToken, refreshToken } = await createToken(user);
+
     const cookieOptions = {
         httpOnly: true,
         // secure: true, //for HTTPS only

@@ -19,6 +19,7 @@ export const validateTokensMiddleware = async (req, res, next) => {
 
     const decodedAccessToken = validateAccessToken(accessToken);
     if (decodedAccessToken && decodedAccessToken.data) {
+
         req[reqUserKey] = decodedAccessToken.data;
 
         return next();
@@ -44,12 +45,13 @@ export const validateTokensMiddleware = async (req, res, next) => {
     }
     
     // valid user and user token not invalidated
-    if (!user || user.tokenCount !== decodedRefreshToken.data.tokenCount)
+    if (!user || (user.tokenCount !== decodedRefreshToken.data.tokenCount))
     return next();
 
+    // be aware that sometimes the obj property value will somehow be undefined (unknown issue)
+    user = JSON.parse(JSON.stringify(user))
     // refresh the tokens
-
-    await setAuthCookies(res, {
+    let cookies = setAuthCookies(res, {
         _id: user._id,
         username: user.username,
         role: user.role,
@@ -58,7 +60,6 @@ export const validateTokensMiddleware = async (req, res, next) => {
     })
 
     req[reqUserKey] = user;
-
 
     next();
 }
