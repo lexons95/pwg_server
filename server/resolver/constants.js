@@ -51,7 +51,7 @@ const resolvers = {
         return new ApolloError("Failed to get token");
       }
     }),
-    getS3PutUrl: editorOnly( async (_, args={}, { req }) => {
+    getS3SignedUrl: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       if (dbName) {
@@ -64,7 +64,20 @@ const resolvers = {
         }
       }
       return new ApolloError("Config not found");
-      
+    }),
+    getManyS3SignedUrl: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      if (dbName) {
+        let AWSS3API = await awsS3API();
+        let urlResult = await AWSS3API.generateManyPutUrl(dbName, args.objects)
+        return {
+          success: true,
+          message: "URL generated",
+          data: urlResult
+        }
+      }
+      return new ApolloError("Config not found");
     })
   },
   Mutation: {
@@ -104,7 +117,7 @@ const resolvers = {
       let dbName = 'klklvapor';
       // let newBucketName = args.targetBucketName;
       // let newBucketName = "mananml-3";
-      let newBucketName = "klklvapor-2";
+      let newBucketName = "klklvapor-3";
       const db_base = await global.connection.useDb("base"); 
       const collection_config = await db_base.collection("config");
       if (dbName) {
@@ -131,10 +144,7 @@ const resolvers = {
         return new ApolloError("Failed to get token");
       }
     }),
-    s3Delete: editorOnly( async (_, args={}, context) => {
-      let AWSS3API = await awsS3API();
-      
-    }),
+
     s3UploadOne: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
@@ -147,6 +157,36 @@ const resolvers = {
           console.log('Upload err',err)
           return new ApolloError("Upload failed");
         });
+      }
+      return new ApolloError("Config not found");
+    }),
+    s3DeleteOne: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
+
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      if (dbName) {
+        let AWSS3API = await awsS3API();
+        let deleteResult = await AWSS3API.deleteOne(dbName, args.Key);
+        return {
+          success: true,
+          message: "Object deleted",
+          data: deleteResult
+        }
+      }
+      return new ApolloError("Config not found");
+    }),
+    s3DeleteMany: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
+
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      if (dbName) {
+        let AWSS3API = await awsS3API();
+        let deleteResult = await AWSS3API.deleteMany(dbName, args.Keys);
+        return {
+          success: true,
+          message: "Objects deleted",
+          data: deleteResult
+        }
       }
       return new ApolloError("Config not found");
     }),

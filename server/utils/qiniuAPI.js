@@ -104,52 +104,90 @@ const qiniuAPI = (bucketName = null) => {
       //   )
       // })
 
-      // copyOperations = [
-      //   qiniu.rs.copyOp(srcBucket, 'avatar.jpg', targetBucket, 'avatar.jpg'),
-      //   qiniu.rs.copyOp(srcBucket, 'saas_logo_1592972996850_klkl-logo.jpg', targetBucket, 'saas_logo_1592972996850_klkl-logo.jpg'),
-      //   qiniu.rs.copyOp(srcBucket, 'saas_logo_1592972996850_klkl-logo.jpg', targetBucket, 'saas_payment_1593523883680_未命名_副本.jpg'),
-      // ]
+      // copyOperations.push(qiniu.rs.copyOp(srcBucket,'saas_logo_1593164963911_100105745_703803090422350_7103922744202362880_n.jpg',targetBucket,'saas_logo_1593164963911_100105745_703803090422350_7103922744202362880_n.jpg'))
+      copyOperations = [
+        //qiniu.rs.copyOp(srcBucket, 'avatar.jpg', targetBucket, 'avatar.jpg'),
+        qiniu.rs.copyOp(srcBucket, 'saas_logo_1592972996850_klkl-logo.jpg', targetBucket, 'saas_logo_1592972996850_klkl-logo.jpg'),
+        //qiniu.rs.copyOp(srcBucket, 'saas_payment_1593523883680_未命名_副本.jpg', targetBucket, 'saas_payment_1593523883680_未命名_副本.jpg'),
+      ]
+
       return new Promise((resolve, reject) => {
-        if (copyOperations.length > 0) {
-          bucketManager.batch(copyOperations, function(err, respBody, respInfo) {
-            if (err) {
-              reject({
-                success: false,
-                message: "Failed to copy",
-                data: {}
-              })
-            } else {
-              // 200 is success, 298 is part success
-              if (parseInt(respInfo.statusCode / 100) == 2) {
-                respBody.forEach(function(item) {
-                  if (item.code == 200) {
-                    console.log(item.code + "\tsuccess");
-                  } else {
-                    console.log(item.code + "\t" + item.data.error);
-                  }
-                });
-                resolve({
-                  success: true,
-                  message: "All copied",
-                  data: {respBody}
-                })
-              } else {
-                reject({
-                  success: false,
-                  message: "Something wrong during copy but jobs completed",
-                  data: {}
-                })
-              }
-            }
-          });
-        }
-        else {
-          reject({
-            success: false,
-            message: "No images found",
-            data: {}
-          })
-        }
+        bucketManager.listPrefix('klklvapor-3',{},function(err, respBody, respInfo) {
+          if (err) {
+            console.log(err);
+            throw err;
+          }
+          if (respInfo.statusCode == 200) {
+            //如果这个nextMarker不为空，那么还有未列举完毕的文件列表，下次调用listPrefix的时候，
+            //指定options里面的marker为这个值
+            // var nextMarker = respBody.marker;
+            // var commonPrefixes = respBody.commonPrefixes;
+            // console.log(nextMarker);
+            // console.log(commonPrefixes);
+            var items = respBody.items;
+            console.log('total length: ',items.length)
+            console.log('link 1 ',"http://qefdx54gk.bkt.clouddn.com/"+items[0].key)
+
+            items.forEach(function(item) {
+              console.log(item.key);
+              // console.log(item.putTime);
+              // console.log(item.hash);
+              // console.log(item.fsize);
+              // console.log(item.mimeType);
+              // console.log(item.endUser);
+              // console.log(item.type);
+            });
+            resolve({
+              success: true,
+              message: "All copied",
+              data: {items}
+            })
+          } else {
+            console.log(respInfo.statusCode);
+            console.log(respBody);
+          }
+        });
+        // if (copyOperations.length > 0) {
+        //   bucketManager.batch(copyOperations, function(err, respBody, respInfo) {
+        //     if (err) {
+        //       reject({
+        //         success: false,
+        //         message: "Failed to copy",
+        //         data: {}
+        //       })
+        //     } else {
+        //       // 200 is success, 298 is part success
+        //       if (parseInt(respInfo.statusCode / 100) == 2) {
+        //         respBody.forEach(function(item) {
+        //           if (item.code == 200) {
+        //             console.log(item.code + "\tsuccess");
+        //           } else {
+        //             console.log(item.code + "\t" + item.data.error);
+        //           }
+        //         });
+        //         resolve({
+        //           success: true,
+        //           message: "All copied",
+        //           data: {respBody}
+        //         })
+        //       } else {
+        //         reject({
+        //           success: false,
+        //           message: "Something wrong during copy but jobs completed",
+        //           data: {}
+        //         })
+        //       }
+        //     }
+        //   });
+        // }
+        // else {
+        //   reject({
+        //     success: false,
+        //     message: "No images found",
+        //     data: {}
+        //   })
+        // }
+
       })
 
     }
