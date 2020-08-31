@@ -38,7 +38,7 @@ const resolvers = {
       if (dbName) {
         const db_base = await global.connection.useDb(dbName);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
-        const newProductObj = Object.assign({},args.product,{published: false, images: []});
+        const newProductObj = Object.assign({},args.product);
         
         let createResult = await collection_product.findOneOrCreate(newProductObj);
         return createResult;
@@ -113,6 +113,20 @@ const resolvers = {
         const db_base = await global.connection.useDb(dbName);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
         let deleteResult = await collection_product.deleteOneProduct(args._id);
+        if (deleteResult && deleteResult.success) {
+          const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
+          let foundInventoryResult = await collection_inventory.find({ productId: args._id}).lean();
+          if (foundInventoryResult && foundInventoryResult.length > 0) {
+            let deleteInventoryList = foundInventoryResult.map((anItem)=>{
+              let newObj = Object.assign({},anItem,{deleted: true});
+              return newObj;
+            })
+            
+            let bulkUpdateResult = await collection_inventory.bulkUpdate({inventory: deleteInventoryList});
+
+            return bulkUpdateResult;
+          }
+        }
         return deleteResult;
       }
       return {
