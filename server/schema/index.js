@@ -4,6 +4,7 @@ import productSchema from './product';
 import userSchema from './user';
 import inventorySchema from './inventory';
 import orderSchema from './order';
+import promotionSchema from './promotion';
 import constantsSchema from './constants';
 
 const linkSchema = gql`
@@ -35,5 +36,6 @@ export default [
     userSchema,
     productSchema,
     inventorySchema,
-    orderSchema
+    orderSchema,
+    promotionSchema
 ];

@@ -14,6 +14,7 @@ const schema = gql`
     updateOrderDelivery(_id: String!, trackingNum: String): Response!
     updateOrderStatus(_id: String!, status: String!): Response!
     cancelOrder(_id: String!): Response!
+    cancelManyOrder(orderIds: [String!]): Response!
     updateOrderRemark(_id: String!, sellerRemark: String!): Response!
   }
 

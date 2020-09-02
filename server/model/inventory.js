@@ -58,7 +58,6 @@ inventorySchema.static('bulkUpdate', async function(obj = {}) {
   if (!Object.entries(obj).length === 0 || obj.constructor === Object) {
     if (obj.inventory.length > 0) {
       obj.inventory.map((anInventory)=>{
-        console.log('anInventory',anInventory)
         const { _id: inventoryId, deleted=false, ...restProperty } = anInventory;
         if (deleted) {
           bulkUpdateArray.push({

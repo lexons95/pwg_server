@@ -18,7 +18,8 @@ const resolvers = {
     }),
     searchOrders: async (_, args=null, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      // let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      let dbName = args.configId;
       const db_base = await global.connection.useDb(dbName);
 
       if (args.filter) {
@@ -128,6 +129,27 @@ const resolvers = {
       };
     }),
     cancelOrder: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
+      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      if (dbName) {
+        const db_base = await global.connection.useDb(dbName);
+        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
+        
+        let cancelResult = await collection_order.cancelOrder(args);
+        if (cancelResult && cancelResult.success) {
+          const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
+          let bulkUpdateResult = await collection_inventory.bulkModifyInventory(cancelResult.data);
+          return bulkUpdateResult;
+        }
+        return cancelResult;
+      }
+      return {
+        success: false,
+        message: "user config id not found",
+        data: {}
+      };
+    }),
+    cancelManyOrder: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
       let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       if (dbName) {
