@@ -33,13 +33,12 @@ export const createToken = async (obj, expiresIn=null) => {
 export const tokenCookies = ({ accessToken, refreshToken }) => {
     const cookieOptions = {
         httpOnly: true,
+        sameSite: 'None', // 'Strict' 'lax'
+        secure: true,
         // secure: true, //for HTTPS only
         // domain: "your-website.com",
         // promo_shown: 1,
-        // secure: true,
-        // sameSite: 'Strict'
-        sameSite: 'None',
-        secure: true
+ 
     };
 
     return {
@@ -54,13 +53,11 @@ export const setAuthCookies = async (res, user, expiresIn=null) => {
 
     const cookieOptions = {
         httpOnly: true,
+        sameSite: 'None',
+        path: '/',
         // secure: true, //for HTTPS only
         // domain: "your-website.com",
-        // promo_shown: 1,
-        // sameSite: 'None',
-        // secure: true,
-        //sameSite: 'Strict'
-        //sameSite: 'lax'
+        // promo_shown: 1
     };
     // let accessCookieLabel = 'saas-access-' + user.role; 
     // let refreshCookieLabel = 'saas-refresh-' + user.role;
@@ -71,7 +68,8 @@ export const setAuthCookies = async (res, user, expiresIn=null) => {
     res.cookie(accessCookieLabel,accessToken,cookieOptions)
     res.cookie(refreshCookieLabel,refreshToken,cookieOptions)
     
-    return tokenCookies({ accessToken, refreshToken });
+    // return tokenCookies({ accessToken, refreshToken });
+    return true
 }
 
 export const deleteAuthCookies = (res, key) => {
