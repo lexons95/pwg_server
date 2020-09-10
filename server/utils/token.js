@@ -54,7 +54,7 @@ export const setAuthCookies = async (res, user, expiresIn=null) => {
     const cookieOptions = {
         httpOnly: true,
         sameSite: 'None',
-        path: '/',
+        // path: '/',
         // secure: true, //for HTTPS only
         // domain: "your-website.com",
         // promo_shown: 1

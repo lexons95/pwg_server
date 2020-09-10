@@ -1,6 +1,4 @@
-import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
-import qiniuAPI from '../utils/qiniuAPI';
 
 const { Schema } = mongoose;
 
