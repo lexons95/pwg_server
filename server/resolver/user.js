@@ -1,5 +1,6 @@
 import { AuthenticationError, ApolloError } from 'apollo-server-express';
 import UserModel from '../model/user';
+import ConfigModel from '../model/config';
 import { createPassword } from '../utils/password';
 import { setAuthCookies, deleteAuthCookies } from "../utils/token";
 
@@ -35,16 +36,38 @@ const resolvers = {
           const db_base = await global.connection.useDb("base");
           const collection_user = await db_base.model("User",UserModel.schema,'user');
           // return await collection_user.findOneUser({username: req.user.username});
-          return await collection_user.findOneUser({_id: req.user._id});
-        }
-        else {
-          return {
-            success: false,
-            message: "no user logged in",
-            data: null
-          }
-          // return new ApolloError("User not found");
+          let foundUserResult = await collection_user.findOneUser({_id: req.user._id});
+          if (foundUserResult && foundUserResult.success) {
+            let userData = JSON.parse(JSON.stringify(foundUserResult.data));
+            let configId = userData.configId;
 
+            const collection_config = await db_base.model("Config",ConfigModel.schema,'config');
+            let foundConfigResult = await collection_config.findOne({configId: configId})
+            if (foundConfigResult) {
+              // console.log('foundConfigResult',foundConfigResult)
+              return {
+                success: true,
+                message: "config found",
+                data: {
+                  ...userData,
+                  config: foundConfigResult
+                }
+              }
+            }
+            else {
+              return {
+                success: false,
+                message: "no user config found",
+                data: null
+              }
+            }
+
+          }
+        }
+        return {
+          success: false,
+          message: "no user logged in",
+          data: null
         }
       }
     },

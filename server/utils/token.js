@@ -30,22 +30,22 @@ export const createToken = async (obj, expiresIn=null) => {
     return { accessToken, refreshToken };
 }
 
-export const tokenCookies = ({ accessToken, refreshToken }) => {
-    const cookieOptions = {
-        httpOnly: true,
-        sameSite: 'None', // 'Strict' 'lax'
-        secure: true,
-        // secure: true, //for HTTPS only
-        // domain: "your-website.com",
-        // promo_shown: 1,
+// export const tokenCookies = ({ accessToken, refreshToken }) => {
+//     const cookieOptions = {
+//         httpOnly: true,
+//         sameSite: 'None', // 'Strict' 'lax'
+//         secure: true,
+//         // secure: true, //for HTTPS only
+//         // domain: "your-website.com",
+//         // promo_shown: 1,
  
-    };
+//     };
 
-    return {
-        access: [accessTokenHeaderLabel, accessToken, cookieOptions],
-        refresh: [refreshTokenHeaderLabel, refreshToken, cookieOptions]
-    };
-}
+//     return {
+//         access: [accessTokenHeaderLabel, accessToken, cookieOptions],
+//         refresh: [refreshTokenHeaderLabel, refreshToken, cookieOptions]
+//     };
+// }
 
 export const setAuthCookies = async (res, user, expiresIn=null) => {
 
@@ -53,7 +53,7 @@ export const setAuthCookies = async (res, user, expiresIn=null) => {
 
     const cookieOptions = {
         httpOnly: true,
-        sameSite: 'None',
+        //sameSite: 'None',
         // path: '/',
         // secure: true, //for HTTPS only
         // domain: "your-website.com",

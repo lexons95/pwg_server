@@ -6,6 +6,7 @@ import inventorySchema from './inventory';
 import orderSchema from './order';
 import promotionSchema from './promotion';
 import constantsSchema from './constants';
+import configSchema from './config';
 
 const linkSchema = gql`
     scalar JSON
@@ -37,5 +38,6 @@ export default [
     productSchema,
     inventorySchema,
     orderSchema,
+    configSchema,
     promotionSchema
 ];

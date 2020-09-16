@@ -83,7 +83,7 @@ export const validateTokensMiddleware = async (req, res, next) => {
 export const requiresRole = roles => resolver => {
     return (parent, args, context, info) => {
         //if (context.req.user && (!roles || roles.indexOf(context.req.user.role) >= 0)) {
-        if (context.req.user && context.req.user._id && (!roles || roles.indexOf(context.req.user.role) >= 0)) {
+        if (context.req.user && context.req.user._id && context.req.user.configId && (!roles || roles.indexOf(context.req.user.role) >= 0)) {
             return resolver(parent, args, context, info)
         } else {
             // return {

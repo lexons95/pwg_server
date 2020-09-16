@@ -8,23 +8,23 @@ const resolvers = {
   Query: {
     products: async (_, args=null, { req }) => {
       let loggedInUser = req.user;
-      // let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
-      let dbName = args.configId;
-      const db_base = await global.connection.useDb(dbName);
+      // let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      let configId = args.configId;
+      const db_base = await global.connection.useDb(configId);
       const collection_product = await db_base.model("Product",ProductModel.schema,'product');
 
       return await collection_product.getProducts(args);
     },
     product: async (_, args=null, { req }) => {
       let loggedInUser = req.user;
-      let dbName = args.configId;
-      if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = args.configId;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
         return await collection_product.findById(args._id);
       }
       else {
-        return new ApolloError("Config not found");;
+        return new ApolloError("Config not found");
       }
     }
 
@@ -34,9 +34,9 @@ const resolvers = {
   Mutation: {
     createProduct: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser.configId;
-      if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser.configId;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
         const newProductObj = Object.assign({},args.product);
         
@@ -51,9 +51,9 @@ const resolvers = {
     }),
     createProducts: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser.configId;
-      if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser.configId;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
         const newProductObj = Object.assign({},args.product,{published: false, images: []});
         
@@ -68,9 +68,9 @@ const resolvers = {
     }),
     updateProduct: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser.configId;
-      if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser.configId;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
         const productObj = args.product;
 
@@ -85,9 +85,9 @@ const resolvers = {
     }),
     updateProductAndInventory: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser.configId;
-      if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser.configId;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
         const productObj = args.product;
 
@@ -108,9 +108,9 @@ const resolvers = {
     }),
     deleteProduct: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser.configId;
-      if (dbName || args._id) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser.configId;
+      if (configId || args._id) {
+        const db_base = await global.connection.useDb(configId);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
         let deleteResult = await collection_product.deleteOneProduct(args._id);
         if (deleteResult && deleteResult.success) {
@@ -137,9 +137,9 @@ const resolvers = {
     }),
     updateProductPublish: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser.configId;
-      if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser.configId;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
         const collection_product = await db_base.model("Product",ProductModel.schema,'product');
         
         let updateResult = await collection_product.updatePublishMany(args);

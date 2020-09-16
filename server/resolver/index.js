@@ -5,6 +5,7 @@ import productResolver from './product';
 import inventoryResolver from './inventory';
 import orderResolver from './order';
 import promotionResolver from './promotion';
+import configResolver from './config';
 import constantsResolver from './constants';
 
 
@@ -18,5 +19,6 @@ export default [
     productResolver,
     inventoryResolver,
     orderResolver,
+    configResolver,
     promotionResolver
 ];

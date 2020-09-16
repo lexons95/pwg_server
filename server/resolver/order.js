@@ -10,17 +10,17 @@ const resolvers = {
   Query: {
     orders: editorOnly( async (_, args=null, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
-      const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      const db_base = await global.connection.useDb(configId);
       const collection_order = await db_base.model("Order",OrderModel.schema,'order');
 
       return await collection_order.getOrders(args);
     }),
     searchOrders: async (_, args=null, { req }) => {
       let loggedInUser = req.user;
-      // let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
-      let dbName = args.configId;
-      const db_base = await global.connection.useDb(dbName);
+      // let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      let configId = args.configId;
+      const db_base = await global.connection.useDb(configId);
 
       if (args.filter) {
         const collection_order = await db_base.model("Order",OrderModel.schema,'order');
@@ -38,12 +38,11 @@ const resolvers = {
   },
   Mutation: {
     createOrder: async (_, args={}, { req }) => {
-      let loggedInUser = req.user;
-      let dbName = args.configId;
-      if (dbName) {
+      let configId = args.configId;
+      if (configId) {
         if (args.order && args.order.items && args.order.items.length > 0) {
           let orderItems = args.order.items;
-          const db_base = await global.connection.useDb(dbName);
+          const db_base = await global.connection.useDb(configId);
           const collection_product = await db_base.model("Product",ProductModel.schema,'product');
           const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
           const collection_order = await db_base.model("Order",OrderModel.schema,'order');
@@ -82,9 +81,9 @@ const resolvers = {
     },
     updateOrderPayment: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
-      if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
         const collection_order = await db_base.model("Order",OrderModel.schema,'order');
         
         let updateResult = await collection_order.updateOrderPayment(args);
@@ -98,9 +97,9 @@ const resolvers = {
     }),
     updateOrderDelivery: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
-      if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
         const collection_order = await db_base.model("Order",OrderModel.schema,'order');
         
         let updateResult = await collection_order.updateOrderDelivery(args);
@@ -114,9 +113,9 @@ const resolvers = {
     }),
     updateOrderStatus: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
-      if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
         const collection_order = await db_base.model("Order",OrderModel.schema,'order');
         
         let updateResult = await collection_order.updateOrderStatus(args);
@@ -130,9 +129,9 @@ const resolvers = {
     }),
     cancelOrder: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
-      if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
         const collection_order = await db_base.model("Order",OrderModel.schema,'order');
         
         let cancelResult = await collection_order.cancelOrder(args);
@@ -151,9 +150,9 @@ const resolvers = {
     }),
     cancelManyOrder: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
-      if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
         const collection_order = await db_base.model("Order",OrderModel.schema,'order');
         
         let cancelResult = await collection_order.cancelOrder(args);
@@ -172,9 +171,9 @@ const resolvers = {
     }),
     updateOrderRemark: editorOnly( async (_, args={}, { req }) => {
       let loggedInUser = req.user;
-      let dbName = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
-      if (dbName) {
-        const db_base = await global.connection.useDb(dbName);
+      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
         const collection_order = await db_base.model("Order",OrderModel.schema,'order');
         
         let updateResult = await collection_order.updateOrderSellerRemark(args);
