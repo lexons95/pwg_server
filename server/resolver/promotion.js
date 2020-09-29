@@ -11,7 +11,7 @@ const resolvers = {
       const db_base = await global.connection.useDb(configId);
       const collection_promotion = await db_base.model("Promotion",PromotionModel.schema,'promotion');
 
-      return await collection_promotion.find({});
+      return await collection_promotion.getPromotions(args);
     },
   },
   Mutation: {

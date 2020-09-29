@@ -7,8 +7,6 @@ import { editorOnly } from '../utils/authentication';
 const resolvers = {
   Query: {
     products: async (_, args=null, { req }) => {
-      let loggedInUser = req.user;
-      // let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       let configId = args.configId;
       const db_base = await global.connection.useDb(configId);
       const collection_product = await db_base.model("Product",ProductModel.schema,'product');
@@ -16,7 +14,6 @@ const resolvers = {
       return await collection_product.getProducts(args);
     },
     product: async (_, args=null, { req }) => {
-      let loggedInUser = req.user;
       let configId = args.configId;
       if (configId) {
         const db_base = await global.connection.useDb(configId);
@@ -27,8 +24,6 @@ const resolvers = {
         return new ApolloError("Config not found");
       }
     }
-
-
       
   },
   Mutation: {

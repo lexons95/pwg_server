@@ -22,7 +22,10 @@ const orderSchema = new Schema({
     type: String,
     default: ""
   },
-  charges: Object,
+  charges: {
+    type: Array,
+    default: []
+  },
   paid: {
     type: Boolean,
     default: false

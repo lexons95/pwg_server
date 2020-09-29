@@ -14,7 +14,10 @@ const inventorySchema = new Schema({
     type: Boolean,
     default: false
   },
-  salePrice: Number,
+  salePrice: {
+    type: Number,
+    default: null
+  },
   variants: Object,
   description: String,
   published: Boolean,

@@ -2,6 +2,10 @@ import { AuthenticationError } from 'apollo-server-express';
 import OrderModel from '../model/order';
 import InventoryModel from '../model/inventory';
 import ProductModel from '../model/product';
+import PromotionModel from '../model/promotion';
+import ConfigModel from '../model/config';
+
+import { cartCalculation, handlePromotionsChecking } from '../utils/cartController';
 
 import { editorOnly } from '../utils/authentication';
 
@@ -31,6 +35,39 @@ const resolvers = {
     },
     order: async (_, args=null, context) => {
       return "read order"
+    },
+
+    checkCart: async (_, args={}, { req }) => {
+      let configId = args.configId;
+
+      if (configId) {
+        const db_base = await global.connection.useDb("base"); 
+        const collection_config = await db_base.model("Config",ConfigModel.schema,'config');
+        let foundConfigResult = await collection_config.findOne({configId: "mananml"});;
+        if (foundConfigResult) {
+          let cartItems = args.items;
+          let promoCode = args.promoCode ? args.promoCode : null;
+          const db_tenant = await global.connection.useDb(configId);
+
+          // const collection_product = await db_tenant.model("Product",ProductModel.schema,'product');
+          // const collection_inventory = await db_tenant.model("Inventory",InventoryModel.schema,'inventory');
+          const collection_promotion = await db_tenant.model("Promotion",PromotionModel.schema,'promotion');
+          let promotions = await collection_promotion.find({})
+
+          let passedPromotions = handlePromotionsChecking(cartItems, promotions, promoCode);
+          let { allowOrder, ...cartCalculationResult } = cartCalculation(cartItems, passedPromotions, foundConfigResult);
+          return {
+            success: allowOrder,
+            message: "Cart checked",
+            data: cartCalculationResult
+          };
+        }
+      }
+      return {
+        success: false,
+        message: "user config id not found",
+        data: {}
+      };
     }
 
 

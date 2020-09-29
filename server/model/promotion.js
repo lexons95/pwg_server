@@ -39,9 +39,13 @@ const promotionSchema = new Schema({
     type: Number,
     default: null
   },
+  minWeight: {
+    type: Number,
+    default: null
+  },
   rewardType: String,
   discountValue: {
-    type: String,
+    type: Number,
     default: null
   },
   redeemed: {
@@ -49,6 +53,34 @@ const promotionSchema = new Schema({
     default: 0
   },
 },{timestamps: true});
+
+promotionSchema.static('getPromotions', function(filterObj = {}) {
+  let filterResult = {};
+  let sorterResult = {};
+  let skipResult = 0;
+  let limitResult = 0;
+
+  if (!Object.entries(filterObj).length === 0 || filterObj.constructor === Object && filterObj != null) {
+    let obj = filterObj.filter ? filterObj.filter : {};
+    
+    filterResult = obj.filter ? obj.filter : {};
+    let sorter = obj.sorter ? obj.sorter : {};
+    sorterResult = Object.assign({},sorter);
+
+    skipResult = obj.skip ? obj.skip : 0;
+    limitResult = obj.limit ? obj.limit : 0;
+
+    const orderBy = {
+        "desc": -1,
+        "acs": 1
+    }
+    let sorterKeys = Object.keys(sorter);
+    sorterKeys.map(aKey=>{
+        sorterResult[aKey] = orderBy[aKey];
+    })
+  }
+  return this.find(filterResult).sort(sorterResult).skip(skipResult).limit(limitResult);
+});
 
 promotionSchema.static('findOneOrCreate', async function(obj = null) {
   let newPromotion = obj;

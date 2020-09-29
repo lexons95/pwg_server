@@ -27,6 +27,7 @@ const schema = gql`
     products: [String!]
     minPurchases: Float
     minQuantity: Int
+    minWeight: Float
     rewardType: String!
     discountValue: String
     redeemed: Int!

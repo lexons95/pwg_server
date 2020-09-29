@@ -128,7 +128,7 @@ const Config = mongoose.model('Config', configSchema);
 export default {
   model: Config,
   schema: configSchema,
-  User: Config
+  Config: Config
 };
 
 /*

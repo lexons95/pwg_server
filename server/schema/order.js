@@ -5,6 +5,7 @@ const schema = gql`
     orders(filter: JSONObject, configId: String): [Order]!
     searchOrders(filter: String!, configId: String): [Order]!
     order(_id: String!) : Order
+    checkCart(configId: String!, items: [JSONObject!], promoCode: String): Response!
   }
   extend type Mutation {
     createOrder(order: JSONObject!, configId: String): Response!
