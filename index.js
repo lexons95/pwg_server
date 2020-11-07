@@ -30,7 +30,19 @@ const run = async () => {
 
   const app = express();
 
-  const WHITE_LIST = [`http://${HOST}:${PORT}`, 'http://${HOST}:3001', 'http://${HOST}:3003', 'http://pwg.mananml.shop', 'http://store.mananml.shop', 'http://www.klklvapor.store']
+  const WHITE_LIST = [
+    `http://${HOST}:${PORT}`, 
+    'http://${HOST}:3001', 
+    'http://${HOST}:3003', 
+    'http://pwg.mananml.shop', 
+    'http://store.mananml.shop', 
+    'http://www.klklvapor.store',
+    'https://www.klklvapor.store',
+    'http://www.mananml.shop', 
+    'https://www.mananml.shop', 
+    'http://www.goldensurrey.store', 
+    'https://www.goldensurrey.store', 
+  ]
   // if (process.env.WHITE_LIST) {
   //   WHITE_LIST.push(process.env.WHITE_LIST)
   // }
