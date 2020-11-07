@@ -15,6 +15,7 @@ import { validateTokensMiddleware } from './server/utils/authentication';
 const dotenv = require('dotenv');
 dotenv.config();
 
+const HOST = process.env.HOST || "localhost";
 const PORT = process.env.PORT;
 
 const run = async () => {
@@ -29,7 +30,7 @@ const run = async () => {
 
   const app = express();
 
-  const WHITE_LIST = [`http://localhost:${PORT}`, 'http://localhost:3001', 'http://localhost:3003', 'http://pwg.mananml.shop', 'http://store.mananml.shop', 'http://www.klklvapor.store']
+  const WHITE_LIST = [`http://${HOST}:${PORT}`, 'http://${HOST}:3001', 'http://${HOST}:3003', 'http://pwg.mananml.shop', 'http://store.mananml.shop', 'http://www.klklvapor.store']
   // if (process.env.WHITE_LIST) {
   //   WHITE_LIST.push(process.env.WHITE_LIST)
   // }
@@ -58,7 +59,7 @@ const run = async () => {
   global.connection = await connect.initDbConnection();
 
   app.listen({ port: PORT }, () =>
-    console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`)
+    console.log(`🚀 Server ready at http://${HOST}:${PORT}${server.graphqlPath}`)
   )
 }
 
