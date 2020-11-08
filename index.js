@@ -12,11 +12,13 @@ import cookieParser from 'cookie-parser';
 // import bodyParser from 'body-parser';
 // import UserModel from './server/model/user';
 import { validateTokensMiddleware } from './server/utils/authentication';
+const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
 
 const HOST = process.env.HOST || "localhost";
 const PORT = process.env.PORT;
+
 
 const run = async () => {
 
@@ -64,6 +66,11 @@ const run = async () => {
   app.use(validateTokensMiddleware);
   
   server.applyMiddleware({ app, cors: false });
+
+  app.use(express.static(path.join(__dirname, 'build')));
+  app.use((req, res, next) => {
+    res.sendFile(path.join(__dirname, "build", "index.html"));
+  });
   // server.applyMiddleware({ app, cors: corsOptions });
   // server.applyMiddleware({ app });
 
