@@ -27,7 +27,9 @@ const run = async () => {
     resolvers,
     context: ({ req, res }) => {
       return { req, res }
-    }
+    },
+    introspection: false,
+    playground: false,
   });
 
   const app = express();
