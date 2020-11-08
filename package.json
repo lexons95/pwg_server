@@ -5,10 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --exec babel-node index.js",
-    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
-    "server": "nodemon --exec babel-node index.js",
-    "client": "cd client && npm run start"
+    "start": "nodemon --exec babel-node index.js"
   },
   "repository": {
     "type": "git",
