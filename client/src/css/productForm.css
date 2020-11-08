@@ -1,0 +1,103 @@
+#productForm {
+  height: 100%;
+  width: 100%;
+  /* overflow: hidden; */
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* justify-content: center; */
+  /* align-items: center; */
+}
+
+
+.inventory-table-variant-header {
+  flex-grow: 1;
+  display: flex;
+  align-items: center; 
+  justify-content: space-between;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+}
+
+
+.productForm-upload .ant-upload-list-picture-card .ant-upload-list-item{
+
+}
+
+.productForm-upload-fav-icon {
+  color: white;
+}
+
+
+
+#productForm2 {
+  height: 100%;
+  width: 100%;
+  padding: 0 15px 15px 15px;
+}
+
+#productForm2 .ant-tabs {
+  height: 100%;
+  width: 100%;
+}
+
+#productForm2 .ant-tabs-content {
+  height: 100%;
+}
+
+.productForm-productInfo-container {
+  /* overflow-y: scroll; */
+  height: 100%;
+  width: 100%;
+}
+
+.inventoryFormTable-container {
+  height: 100%;
+  width: 100%;
+}
+
+.inventoryFormTable-form {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.inventoryFormTable-table-data {
+  overflow-y: auto;
+  width: 100%;
+  flex-grow: 1;
+}
+
+.inventoryFormTable-table-row {
+  padding-bottom: 10px;
+}
+
+.inventoryFormTable3-container {
+  height: 100%;
+  width: 100%;
+}
+
+
+.productForm-tab-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.productForm-tab-content {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.productForm-tab-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.productForm-tab-inventory-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}

@@ -12,9 +12,7 @@ import cookieParser from 'cookie-parser';
 // import bodyParser from 'body-parser';
 // import UserModel from './server/model/user';
 import { validateTokensMiddleware } from './server/utils/authentication';
-const path = require('path');
 const dotenv = require('dotenv');
-const serveStatic = require('serve-static')
 dotenv.config();
 
 const HOST = process.env.HOST || "localhost";
@@ -29,14 +27,15 @@ const run = async () => {
     context: ({ req, res }) => {
       return { req, res }
     },
-    introspection: false,
-    playground: false,
+    //introspection: false,
+    //playground: false,
   });
 
   const app = express();
 
   const WHITE_LIST = [
     `http://${HOST}:${PORT}`, 
+    'http://${HOST}:3000', 
     'http://${HOST}:3001', 
     'http://${HOST}:3003', 
     'http://pwg.mananml.shop', 
@@ -70,15 +69,6 @@ const run = async () => {
   
   server.applyMiddleware({ app, cors: false });
 
-
-  // app.use(serveStatic(path.join(__dirname, 'build')))
-  // app.use(serveStatic(path.join(__dirname, 'build/static')))
-  app.use(express.static(path.join(__dirname, 'build')));
-  app.use((req, res, next) => {
-    res.sendFile(path.join(__dirname, "build", "index.html"));
-  });
-  // app.use(express.static('build/static'));
-  // app.use(express.static('images'));
   // server.applyMiddleware({ app, cors: corsOptions });
   // server.applyMiddleware({ app });
 

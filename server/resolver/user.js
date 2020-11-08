@@ -81,7 +81,7 @@ const resolvers = {
         
         let createResult = await collection_user.findOneOrCreate(newUserObj);
 
-        // create qiniu bucket, create config
+        // create image bucket, create config
         return createResult;
       },
       // loginUser: async (_, args={}, context) => {
