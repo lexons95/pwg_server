@@ -71,8 +71,8 @@ const run = async () => {
   server.applyMiddleware({ app, cors: false });
 
 
-  app.use(serveStatic(path.join(__dirname, 'build')))
-  app.use(serveStatic(path.join(__dirname, 'build/static')))
+  // app.use(serveStatic(path.join(__dirname, 'build')))
+  // app.use(serveStatic(path.join(__dirname, 'build/static')))
   app.use(express.static(path.join(__dirname, 'build')));
   app.use((req, res, next) => {
     res.sendFile(path.join(__dirname, "build", "index.html"));
