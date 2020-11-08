@@ -14,6 +14,7 @@ import cookieParser from 'cookie-parser';
 import { validateTokensMiddleware } from './server/utils/authentication';
 const path = require('path');
 const dotenv = require('dotenv');
+const serveStatic = require('serve-static')
 dotenv.config();
 
 const HOST = process.env.HOST || "localhost";
@@ -69,10 +70,15 @@ const run = async () => {
   
   server.applyMiddleware({ app, cors: false });
 
+
+  app.use(serveStatic(path.join(__dirname, 'build')))
+  app.use(serveStatic(path.join(__dirname, 'build/static')))
   app.use(express.static(path.join(__dirname, 'build')));
   app.use((req, res, next) => {
     res.sendFile(path.join(__dirname, "build", "index.html"));
   });
+  // app.use(express.static('build/static'));
+  // app.use(express.static('images'));
   // server.applyMiddleware({ app, cors: corsOptions });
   // server.applyMiddleware({ app });
 
