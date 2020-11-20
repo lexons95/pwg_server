@@ -46,6 +46,7 @@ const run = async () => {
     'https://www.mananml.shop', 
     'http://www.goldensurrey.store', 
     'https://www.goldensurrey.store', 
+    'https://serverw.goldensurrey.store', 
   ]
   // if (process.env.WHITE_LIST) {
   //   WHITE_LIST.push(process.env.WHITE_LIST)
