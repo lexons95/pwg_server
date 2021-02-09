@@ -38,6 +38,7 @@ const run = async () => {
     'http://${HOST}:3000', 
     'http://${HOST}:3001', 
     'http://${HOST}:3003', 
+    'http://localhost:3000', 
     'http://pwg.mananml.shop', 
     'http://store.mananml.shop', 
     'http://www.klklvapor.store',
@@ -47,6 +48,7 @@ const run = async () => {
     'http://www.goldensurrey.store', 
     'https://www.goldensurrey.store', 
     'https://serverw.goldensurrey.store', 
+    'http://admin.goldensurrey.store', 
   ]
   // if (process.env.WHITE_LIST) {
   //   WHITE_LIST.push(process.env.WHITE_LIST)
@@ -63,8 +65,8 @@ const run = async () => {
     credentials: true
   };
 
-  app.use(cors(corsOptions));
   app.use(cookieParser()); // cookieParser need to be placed before other app.use which uses cookie
+  app.use(cors(corsOptions));
 
   app.use(validateTokensMiddleware);
   

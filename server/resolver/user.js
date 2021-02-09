@@ -2,7 +2,7 @@ import { AuthenticationError, ApolloError } from 'apollo-server-express';
 import UserModel from '../model/user';
 import ConfigModel from '../model/config';
 import { createPassword } from '../utils/password';
-import { setAuthCookies, deleteAuthCookies } from "../utils/token";
+import { setAuthCookies, deleteAuthCookies, createToken } from "../utils/token";
 
 const authenticate = role => resolver => {
   return (parent, args, context, info) => {
@@ -136,7 +136,14 @@ const resolvers = {
             const isValidPassword = await userFoundResult.data.validatePassword(args.user.password);
             if (isValidPassword) {
                 let tokenData = JSON.parse(JSON.stringify(userFoundResult.data));
-     
+
+                let token = await createToken({
+                  _id: tokenData._id,
+                  username: tokenData.username,
+                  role: tokenData.role,
+                  configId: tokenData.configId,
+                  tokenCount: tokenData.tokenCount
+                })
                 await setAuthCookies(res, {
                   _id: tokenData._id,
                   username: tokenData.username,
@@ -145,7 +152,19 @@ const resolvers = {
                   tokenCount: tokenData.tokenCount
                 })
 
-                return userFoundResult;
+                return {
+                  ...userFoundResult,
+                  token: token
+                }
+                // return {
+                //   ,
+                //   data: {
+                //     ...userFoundResult.data,
+                //     ...token
+                //   },
+                //   token: token
+                
+                // };
             }
             else {
                 return {
