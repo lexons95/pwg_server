@@ -15,8 +15,8 @@ export const validateTokensMiddleware = async (req, res, next) => {
     // const accessToken = req.cookies[accessCookieLabel];
     // const refreshToken = req.cookies[refreshCookieLabel];
     let authorizationTokens = req.headers.authorization ? req.headers.authorization.split(',') : null;
-    const accessToken = authorizationTokens[0];
-    const refreshToken = authorizationTokens[1];
+    const accessToken = authorizationTokens && authorizationTokens.length == 2 ? authorizationTokens[0] : null;
+    const refreshToken = authorizationTokens && authorizationTokens.length == 2 ? authorizationTokens[1] : null;
     console.log('authorizationTokens',authorizationTokens)
 
     if (!accessToken && !refreshToken) return next();
