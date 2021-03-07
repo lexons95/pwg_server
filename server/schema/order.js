@@ -17,6 +17,7 @@ const schema = gql`
     cancelOrder(_id: String!): Response!
     cancelManyOrder(orderIds: [String!]): Response!
     updateOrderRemark(_id: String!, sellerRemark: String!): Response!
+    updateOrderData(_id: String!, property: String!, value: String!): Response!
   }
 
   type Order {
@@ -31,6 +32,7 @@ const schema = gql`
     customer: JSONObject
     remark: String
     sellerRemark: String
+    remarkForMerchant: String
     charges: [JSONObject]
 
     paid: Boolean!

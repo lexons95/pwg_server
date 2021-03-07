@@ -22,6 +22,10 @@ const orderSchema = new Schema({
     type: String,
     default: ""
   },
+  remarkForMerchant:  {
+    type: String,
+    default: ""
+  },
   charges: {
     type: Array,
     default: []
@@ -202,6 +206,29 @@ orderSchema.static('updateOrderSellerRemark', async function(obj = null) {
   let { _id, ...restOrder } = obj;
 
   let updatePromise = this.findOneAndUpdate({_id: _id },{ $set: restOrder })
+  await updatePromise.then((result, err)=>{
+    if (!err) {
+      response = {
+        success: true,
+        message: "Order Updated",
+        data: result
+      } 
+    }
+  });
+
+  return response;
+})
+
+orderSchema.static('updateOrderData', async function(obj = null) {
+  let response = {
+    success: false,
+    message: "",
+    data: {}
+  }
+
+  let { _id, property, value } = obj;
+
+  let updatePromise = this.findOneAndUpdate({_id: _id },{ $set: { [property]: value } })
   await updatePromise.then((result, err)=>{
     if (!err) {
       response = {

@@ -221,6 +221,22 @@ const resolvers = {
         message: "user config id not found",
         data: {}
       };
+    }),
+    updateOrderData: editorOnly( async (_, args={}, { req }) => {
+      let loggedInUser = req.user;
+      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      if (configId) {
+        const db_base = await global.connection.useDb(configId);
+        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
+        
+        let updateResult = await collection_order.updateOrderData(args);
+        return updateResult;
+      }
+      return {
+        success: false,
+        message: "user config id not found",
+        data: {}
+      };
     })
   }
   
