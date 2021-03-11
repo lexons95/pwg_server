@@ -29,6 +29,7 @@ const schema = gql`
     items: [JSONObject]
     deliveryFee: Float
     total: Float!
+    subTotal: Float
     customer: JSONObject
     remark: String
     sellerRemark: String

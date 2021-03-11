@@ -13,6 +13,7 @@ const orderSchema = new Schema({
   },
   deliveryFee: Number,
   total: Number,
+  subTotal: Number,
   customer: Object,
   remark:  {
     type: String,
