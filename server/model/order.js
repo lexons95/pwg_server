@@ -1,274 +1,317 @@
-import bcrypt from 'bcryptjs';
-import mongoose from 'mongoose';
+import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
-const orderSchema = new Schema({
-  createdAt: Date,
-  updatedAt: Date,
-  type: String,
-  items: {
-    type: Array,
-    default: []
-  },
-  deliveryFee: Number,
-  total: Number,
-  subTotal: Number,
-  customer: Object,
-  remark:  {
+const orderSchema = new Schema(
+  {
+    createdAt: Date,
+    updatedAt: Date,
     type: String,
-    default: ""
+    items: {
+      type: Array,
+      default: [],
+    },
+    deliveryFee: Number,
+    total: Number,
+    subTotal: Number,
+    customer: Object,
+    remark: {
+      type: String,
+      default: "",
+    },
+    sellerRemark: {
+      type: String,
+      default: "",
+    },
+    remarkForMerchant: {
+      type: String,
+      default: "",
+    },
+    charges: {
+      type: Array,
+      default: [],
+    },
+    paid: {
+      type: Boolean,
+      default: false,
+    },
+    trackingNum: {
+      type: String,
+      default: "",
+    },
+    sentOut: {
+      type: Boolean,
+      default: false,
+    },
+    status: String,
   },
-  sellerRemark:  {
-    type: String,
-    default: ""
-  },
-  remarkForMerchant:  {
-    type: String,
-    default: ""
-  },
-  charges: {
-    type: Array,
-    default: []
-  },
-  paid: {
-    type: Boolean,
-    default: false
-  },
-  trackingNum: {
-    type: String,
-    default: ""
-  },
-  sentOut: {
-    type: Boolean,
-    default: false
-  },
-  status: String
-},{timestamps: true});
+  { timestamps: true }
+);
 
-orderSchema.static('getOrders', function(filterObj = null) {
+orderSchema.static("getOrders", function (filterObj = null) {
   let filterResult = {};
   let sorterResult = {};
   let skipResult = 0;
   let limitResult = 0;
 
-  if (!Object.entries(filterObj).length === 0 || filterObj.constructor === Object && filterObj != null) {
-      let obj = filterObj.filter ? filterObj.filter : {};
-      filterResult = obj.filter ? obj.filter : {};
-      let sorter = obj.sorter ? obj.sorter : {};
-      sorterResult = Object.assign({},sorter);
+  if (
+    !Object.entries(filterObj).length === 0 ||
+    (filterObj.constructor === Object && filterObj != null)
+  ) {
+    let obj = filterObj.filter ? filterObj.filter : {};
+    filterResult = obj.filter ? obj.filter : {};
+    let sorter = obj.sorter ? obj.sorter : {};
+    sorterResult = Object.assign({}, sorter);
 
-      skipResult = obj.skip ? obj.skip : 0;
-      limitResult = obj.limit ? obj.limit : 0;
+    skipResult = obj.skip ? obj.skip : 0;
+    limitResult = obj.limit ? obj.limit : 0;
 
-      // const orderBy = {
-      //     "desc": -1,
-      //     "acs": 1
-      // }
-      // let sorterKeys = Object.keys(sorter);
-      // sorterKeys.map(aKey=>{
-      //     sorterResult[aKey] = orderBy[aKey];
-      // })
+    // const orderBy = {
+    //     "desc": -1,
+    //     "acs": 1
+    // }
+    // let sorterKeys = Object.keys(sorter);
+    // sorterKeys.map(aKey=>{
+    //     sorterResult[aKey] = orderBy[aKey];
+    // })
   }
-  return this.find(filterResult).sort(sorterResult).skip(skipResult).limit(limitResult);
+
+  return this.find(filterResult)
+    .sort(sorterResult)
+    .skip(skipResult)
+    .limit(limitResult);
 });
 
-orderSchema.static('searchOrders', function(filterObj = null) {
+orderSchema.static("getOrders2", async function (filterObj = null) {
+  let filterResult = {};
+  let sorterResult = {};
+  let skipResult = 0;
+  let limitResult = 0;
+
+  if (
+    !Object.entries(filterObj).length === 0 ||
+    (filterObj.constructor === Object && filterObj != null)
+  ) {
+    let obj = filterObj.filter ? filterObj.filter : {};
+    filterResult = obj.filter ? obj.filter : {};
+    let sorter = obj.sorter ? obj.sorter : {};
+    sorterResult = Object.assign({}, sorter);
+
+    skipResult = obj.skip ? obj.skip : 0;
+    limitResult = obj.limit ? obj.limit : 0;
+  }
+  let totalCount = await this.count(filterResult);
+  let orders = await this.find(filterResult)
+    .sort(sorterResult)
+    .skip(skipResult)
+    .limit(limitResult);
+  return {
+    orders: orders,
+    totalCount: totalCount,
+  };
+});
+
+orderSchema.static("searchOrders", function (filterObj = null) {
   let filterResult = {};
   let sorterResult = {};
   let skipResult = 0;
   let limitResult = 0;
 
   if (filterObj) {
-      // let obj = filterObj.filter ? filterObj.filter : {};
-      // filterResult = obj.filter ? obj.filter : {};
-      let obj = {};
-      let sorter = obj.sorter ? obj.sorter : {};
-      sorterResult = Object.assign({},sorter);
+    // let obj = filterObj.filter ? filterObj.filter : {};
+    // filterResult = obj.filter ? obj.filter : {};
+    let obj = {};
+    let sorter = obj.sorter ? obj.sorter : {};
+    sorterResult = Object.assign({}, sorter);
 
-      skipResult = obj.skip ? obj.skip : 0;
-      limitResult = obj.limit ? obj.limit : 0;
+    skipResult = obj.skip ? obj.skip : 0;
+    limitResult = obj.limit ? obj.limit : 0;
 
-      return this.find({'customer.contact': filterObj}).sort(sorterResult).skip(skipResult).limit(limitResult);
+    return this.find({ "customer.contact": filterObj })
+      .sort(sorterResult)
+      .skip(skipResult)
+      .limit(limitResult);
   }
   return [];
 });
 
-orderSchema.static('createOrder', async function(obj = null) {
+orderSchema.static("createOrder", async function (obj = null) {
   let response = {
     success: false,
     message: "",
-    data: {}
-  }
+    data: {},
+  };
 
-  let createPromise = this.create(obj)
-  await createPromise.then((result, err)=>{
+  let createPromise = this.create(obj);
+  await createPromise.then((result, err) => {
     if (!err) {
       response = {
         success: true,
         message: "",
-        data: result
-      } 
+        data: result,
+      };
     }
   });
 
   return response;
-})
+});
 
-orderSchema.static('updateOrderPayment', async function(obj = null) {
+orderSchema.static("updateOrderPayment", async function (obj = null) {
   let response = {
     success: false,
     message: "",
-    data: {}
-  }
+    data: {},
+  };
 
   let setter = {
     paid: obj.paid,
-    status: obj.paid ? '1' : '0'
-  }
-  
-  let updatePromise = this.findOneAndUpdate({_id: obj._id},{ $set: setter })
-  await updatePromise.then((result, err)=>{
+    status: obj.paid ? "1" : "0",
+  };
+
+  let updatePromise = this.findOneAndUpdate({ _id: obj._id }, { $set: setter });
+  await updatePromise.then((result, err) => {
     if (!err) {
       response = {
         success: true,
         message: "",
-        data: result
-      } 
+        data: result,
+      };
     }
   });
 
   return response;
-})
+});
 
-orderSchema.static('updateOrderDelivery', async function(obj = null) {
+orderSchema.static("updateOrderDelivery", async function (obj = null) {
   let response = {
     success: false,
     message: "",
-    data: {}
-  }
+    data: {},
+  };
   let setter = {
     trackingNum: "",
-  }
+  };
   if (obj.trackingNum) {
-    setter['trackingNum'] = obj.trackingNum;
-    setter['sentOut'] = true;
-    setter['status'] = '2';
+    setter["trackingNum"] = obj.trackingNum;
+    setter["sentOut"] = true;
+    setter["status"] = "2";
+  } else {
+    setter["sentOut"] = false;
+    setter["status"] = "1";
   }
-  else {
-    setter['sentOut'] = false;
-    setter['status'] = '1';
-  }
-  let updatePromise = this.findOneAndUpdate({_id: obj._id},{ $set: setter })
-  await updatePromise.then((result, err)=>{
+  let updatePromise = this.findOneAndUpdate({ _id: obj._id }, { $set: setter });
+  await updatePromise.then((result, err) => {
     if (!err) {
       response = {
         success: true,
         message: "",
-        data: result
-      } 
+        data: result,
+      };
     }
   });
 
   return response;
-})
+});
 
-orderSchema.static('updateOrderStatus', async function(obj = null) {
+orderSchema.static("updateOrderStatus", async function (obj = null) {
   let response = {
     success: false,
     message: "",
-    data: {}
-  }
+    data: {},
+  };
   let setter = {
-    status: obj.status
-  }
+    status: obj.status,
+  };
 
-  let updatePromise = this.findOneAndUpdate({_id: obj._id},{ $set: setter })
-  await updatePromise.then((result, err)=>{
+  let updatePromise = this.findOneAndUpdate({ _id: obj._id }, { $set: setter });
+  await updatePromise.then((result, err) => {
     if (!err) {
       response = {
         success: true,
         message: "",
-        data: result
-      } 
+        data: result,
+      };
     }
   });
 
   return response;
-})
+});
 
-orderSchema.static('updateOrderSellerRemark', async function(obj = null) {
+orderSchema.static("updateOrderSellerRemark", async function (obj = null) {
   let response = {
     success: false,
     message: "",
-    data: {}
-  }
+    data: {},
+  };
 
   let { _id, ...restOrder } = obj;
 
-  let updatePromise = this.findOneAndUpdate({_id: _id },{ $set: restOrder })
-  await updatePromise.then((result, err)=>{
+  let updatePromise = this.findOneAndUpdate({ _id: _id }, { $set: restOrder });
+  await updatePromise.then((result, err) => {
     if (!err) {
       response = {
         success: true,
         message: "Order Updated",
-        data: result
-      } 
+        data: result,
+      };
     }
   });
 
   return response;
-})
+});
 
-orderSchema.static('updateOrderData', async function(obj = null) {
+orderSchema.static("updateOrderData", async function (obj = null) {
   let response = {
     success: false,
     message: "",
-    data: {}
-  }
+    data: {},
+  };
 
   let { _id, property, value } = obj;
 
-  let updatePromise = this.findOneAndUpdate({_id: _id },{ $set: { [property]: value } })
-  await updatePromise.then((result, err)=>{
+  let updatePromise = this.findOneAndUpdate(
+    { _id: _id },
+    { $set: { [property]: value } }
+  );
+  await updatePromise.then((result, err) => {
     if (!err) {
       response = {
         success: true,
         message: "Order Updated",
-        data: result
-      } 
+        data: result,
+      };
     }
   });
 
   return response;
-})
+});
 
-orderSchema.static('cancelOrder', async function(obj = null) {
+orderSchema.static("cancelOrder", async function (obj = null) {
   let response = {
     success: false,
     message: "",
-    data: {}
-  }
+    data: {},
+  };
 
-  let deletePromise = this.findOneAndDelete({_id: obj._id})
-  await deletePromise.then((result, err)=>{
-
+  let deletePromise = this.findOneAndDelete({ _id: obj._id });
+  await deletePromise.then((result, err) => {
     if (!err) {
       response = {
         success: true,
         message: "",
-        data: result
-      } 
+        data: result,
+      };
     }
   });
 
   return response;
-})
+});
 
-const Order = mongoose.model('Order', orderSchema); 
+const Order = mongoose.model("Order", orderSchema);
 
 export default {
   model: Order,
   schema: orderSchema,
-  Order: Order
+  Order: Order,
 };

@@ -1,11 +1,16 @@
-import { gql } from 'apollo-server-express';
+import { gql } from "apollo-server-express";
 
 const schema = gql`
   extend type Query {
     orders(filter: JSONObject, configId: String): [Order]!
+    orders2(filter: JSONObject, configId: String): JSONObject
     searchOrders(filter: String!, configId: String): [Order]!
-    order(_id: String!) : Order
-    checkCart(configId: String!, items: [JSONObject!], promoCode: String): Response!
+    order(_id: String!): Order
+    checkCart(
+      configId: String!
+      items: [JSONObject!]
+      promoCode: String
+    ): Response!
   }
   extend type Mutation {
     createOrder(order: JSONObject!, configId: String): Response!
@@ -40,7 +45,6 @@ const schema = gql`
     sentOut: Boolean!
     trackingNum: String
     status: String
-
   }
 `;
 

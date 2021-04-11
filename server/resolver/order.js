@@ -1,49 +1,83 @@
-import { AuthenticationError } from 'apollo-server-express';
-import OrderModel from '../model/order';
-import InventoryModel from '../model/inventory';
-import ProductModel from '../model/product';
-import PromotionModel from '../model/promotion';
-import ConfigModel from '../model/config';
+import { AuthenticationError } from "apollo-server-express";
+import OrderModel from "../model/order";
+import InventoryModel from "../model/inventory";
+import ProductModel from "../model/product";
+import PromotionModel from "../model/promotion";
+import ConfigModel from "../model/config";
 
-import { cartCalculation, handlePromotionsChecking } from '../utils/cartController';
+import {
+  cartCalculation,
+  handlePromotionsChecking,
+} from "../utils/cartController";
 
-import { editorOnly } from '../utils/authentication';
-
+import { editorOnly } from "../utils/authentication";
 
 const resolvers = {
   Query: {
-    orders: editorOnly( async (_, args=null, { req }) => {
+    orders: editorOnly(async (_, args = null, { req }) => {
       let loggedInUser = req.user;
-      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
+      let configId =
+        loggedInUser && loggedInUser.configId
+          ? loggedInUser.configId
+          : args.configId;
       const db_base = await global.connection.useDb(configId);
-      const collection_order = await db_base.model("Order",OrderModel.schema,'order');
+      const collection_order = await db_base.model(
+        "Order",
+        OrderModel.schema,
+        "order"
+      );
 
       return await collection_order.getOrders(args);
     }),
-    searchOrders: async (_, args=null, { req }) => {
+    searchOrders: async (_, args = null, { req }) => {
       let loggedInUser = req.user;
       // let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : args.configId;
       let configId = args.configId;
       const db_base = await global.connection.useDb(configId);
 
       if (args.filter) {
-        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
-  
+        const collection_order = await db_base.model(
+          "Order",
+          OrderModel.schema,
+          "order"
+        );
+
         return await collection_order.searchOrders(args.filter);
       }
       return [];
     },
-    order: async (_, args=null, context) => {
-      return "read order"
+    orders2: editorOnly(async (_, args = null, { req }) => {
+      let loggedInUser = req.user;
+      let configId =
+        loggedInUser && loggedInUser.configId
+          ? loggedInUser.configId
+          : args.configId;
+      const db_base = await global.connection.useDb(configId);
+      const collection_order = await db_base.model(
+        "Order",
+        OrderModel.schema,
+        "order"
+      );
+
+      return await collection_order.getOrders2(args);
+    }),
+    order: async (_, args = null, context) => {
+      return "read order";
     },
 
-    checkCart: async (_, args={}, { req }) => {
+    checkCart: async (_, args = {}, { req }) => {
       let configId = args.configId;
 
       if (configId) {
-        const db_base = await global.connection.useDb("base"); 
-        const collection_config = await db_base.model("Config",ConfigModel.schema,'config');
-        let foundConfigResult = await collection_config.findOne({configId: "mananml"});;
+        const db_base = await global.connection.useDb("base");
+        const collection_config = await db_base.model(
+          "Config",
+          ConfigModel.schema,
+          "config"
+        );
+        let foundConfigResult = await collection_config.findOne({
+          configId: "mananml",
+        });
         if (foundConfigResult) {
           let cartItems = args.items;
           let promoCode = args.promoCode ? args.promoCode : null;
@@ -51,51 +85,83 @@ const resolvers = {
 
           // const collection_product = await db_tenant.model("Product",ProductModel.schema,'product');
           // const collection_inventory = await db_tenant.model("Inventory",InventoryModel.schema,'inventory');
-          const collection_promotion = await db_tenant.model("Promotion",PromotionModel.schema,'promotion');
-          let promotions = await collection_promotion.find({})
+          const collection_promotion = await db_tenant.model(
+            "Promotion",
+            PromotionModel.schema,
+            "promotion"
+          );
+          let promotions = await collection_promotion.find({});
 
-          let passedPromotions = handlePromotionsChecking(cartItems, promotions, promoCode);
-          let { allowOrder, ...cartCalculationResult } = cartCalculation(cartItems, passedPromotions, foundConfigResult);
+          let passedPromotions = handlePromotionsChecking(
+            cartItems,
+            promotions,
+            promoCode
+          );
+          let { allowOrder, ...cartCalculationResult } = cartCalculation(
+            cartItems,
+            passedPromotions,
+            foundConfigResult
+          );
           return {
             success: allowOrder,
             message: "Cart checked",
-            data: cartCalculationResult
+            data: cartCalculationResult,
           };
         }
       }
       return {
         success: false,
         message: "user config id not found",
-        data: {}
+        data: {},
       };
-    }
-
-
-      
+    },
   },
   Mutation: {
-    createOrder: async (_, args={}, { req }) => {
+    createOrder: async (_, args = {}, { req }) => {
       let configId = args.configId;
       if (configId) {
         if (args.order && args.order.items && args.order.items.length > 0) {
           let orderItems = args.order.items;
           const db_base = await global.connection.useDb(configId);
-          const collection_product = await db_base.model("Product",ProductModel.schema,'product');
-          const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
-          const collection_order = await db_base.model("Order",OrderModel.schema,'order');
+          const collection_product = await db_base.model(
+            "Product",
+            ProductModel.schema,
+            "product"
+          );
+          const collection_inventory = await db_base.model(
+            "Inventory",
+            InventoryModel.schema,
+            "inventory"
+          );
+          const collection_order = await db_base.model(
+            "Order",
+            OrderModel.schema,
+            "order"
+          );
 
-          
-          let checkProductPublishedResult = await collection_product.checkProductPublish(orderItems);
+          let checkProductPublishedResult = await collection_product.checkProductPublish(
+            orderItems
+          );
 
-          if (checkProductPublishedResult && checkProductPublishedResult.success) {
-            let checkStockResult = await collection_inventory.checkInventoryStock(orderItems);
+          if (
+            checkProductPublishedResult &&
+            checkProductPublishedResult.success
+          ) {
+            let checkStockResult = await collection_inventory.checkInventoryStock(
+              orderItems
+            );
             if (checkStockResult && checkStockResult.success) {
-              const newOrderObj = Object.assign({},args.order);
-              let createResult = await collection_order.createOrder(newOrderObj);
+              const newOrderObj = Object.assign({}, args.order);
+              let createResult = await collection_order.createOrder(
+                newOrderObj
+              );
               // console.log('createResult',createResult)
               if (createResult && createResult.success) {
-                let bulkUpdateResult = await collection_inventory.bulkModifyInventory(createResult.data, 'decrease');
-                return {...bulkUpdateResult, data: createResult.data};
+                let bulkUpdateResult = await collection_inventory.bulkModifyInventory(
+                  createResult.data,
+                  "decrease"
+                );
+                return { ...bulkUpdateResult, data: createResult.data };
               }
               return createResult;
             }
@@ -106,75 +172,100 @@ const resolvers = {
         return {
           success: false,
           message: "not item in order",
-          data: {}
+          data: {},
         };
       }
       return {
         success: false,
         message: "user config id not found",
-        data: {}
+        data: {},
       };
-
     },
-    updateOrderPayment: editorOnly( async (_, args={}, { req }) => {
+    updateOrderPayment: editorOnly(async (_, args = {}, { req }) => {
       let loggedInUser = req.user;
-      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      let configId =
+        loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
       if (configId) {
         const db_base = await global.connection.useDb(configId);
-        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
-        
+        const collection_order = await db_base.model(
+          "Order",
+          OrderModel.schema,
+          "order"
+        );
+
         let updateResult = await collection_order.updateOrderPayment(args);
         return updateResult;
       }
       return {
         success: false,
         message: "user config id not found",
-        data: {}
+        data: {},
       };
     }),
-    updateOrderDelivery: editorOnly( async (_, args={}, { req }) => {
+    updateOrderDelivery: editorOnly(async (_, args = {}, { req }) => {
       let loggedInUser = req.user;
-      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      let configId =
+        loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
       if (configId) {
         const db_base = await global.connection.useDb(configId);
-        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
-        
+        const collection_order = await db_base.model(
+          "Order",
+          OrderModel.schema,
+          "order"
+        );
+
         let updateResult = await collection_order.updateOrderDelivery(args);
         return updateResult;
       }
       return {
         success: false,
         message: "user config id not found",
-        data: {}
+        data: {},
       };
     }),
-    updateOrderStatus: editorOnly( async (_, args={}, { req }) => {
+    updateOrderStatus: editorOnly(async (_, args = {}, { req }) => {
       let loggedInUser = req.user;
-      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      let configId =
+        loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
       if (configId) {
         const db_base = await global.connection.useDb(configId);
-        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
-        
+        const collection_order = await db_base.model(
+          "Order",
+          OrderModel.schema,
+          "order"
+        );
+
         let updateResult = await collection_order.updateOrderStatus(args);
         return updateResult;
       }
       return {
         success: false,
         message: "user config id not found",
-        data: {}
+        data: {},
       };
     }),
-    cancelOrder: editorOnly( async (_, args={}, { req }) => {
+    cancelOrder: editorOnly(async (_, args = {}, { req }) => {
       let loggedInUser = req.user;
-      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      let configId =
+        loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
       if (configId) {
         const db_base = await global.connection.useDb(configId);
-        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
-        
+        const collection_order = await db_base.model(
+          "Order",
+          OrderModel.schema,
+          "order"
+        );
+
         let cancelResult = await collection_order.cancelOrder(args);
         if (cancelResult && cancelResult.success) {
-          const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
-          let bulkUpdateResult = await collection_inventory.bulkModifyInventory(cancelResult.data);
+          const collection_inventory = await db_base.model(
+            "Inventory",
+            InventoryModel.schema,
+            "inventory"
+          );
+          let bulkUpdateResult = await collection_inventory.bulkModifyInventory(
+            cancelResult.data
+          );
           return bulkUpdateResult;
         }
         return cancelResult;
@@ -182,20 +273,31 @@ const resolvers = {
       return {
         success: false,
         message: "user config id not found",
-        data: {}
+        data: {},
       };
     }),
-    cancelManyOrder: editorOnly( async (_, args={}, { req }) => {
+    cancelManyOrder: editorOnly(async (_, args = {}, { req }) => {
       let loggedInUser = req.user;
-      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      let configId =
+        loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
       if (configId) {
         const db_base = await global.connection.useDb(configId);
-        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
-        
+        const collection_order = await db_base.model(
+          "Order",
+          OrderModel.schema,
+          "order"
+        );
+
         let cancelResult = await collection_order.cancelOrder(args);
         if (cancelResult && cancelResult.success) {
-          const collection_inventory = await db_base.model("Inventory",InventoryModel.schema,'inventory');
-          let bulkUpdateResult = await collection_inventory.bulkModifyInventory(cancelResult.data);
+          const collection_inventory = await db_base.model(
+            "Inventory",
+            InventoryModel.schema,
+            "inventory"
+          );
+          let bulkUpdateResult = await collection_inventory.bulkModifyInventory(
+            cancelResult.data
+          );
           return bulkUpdateResult;
         }
         return cancelResult;
@@ -203,43 +305,52 @@ const resolvers = {
       return {
         success: false,
         message: "user config id not found",
-        data: {}
+        data: {},
       };
     }),
-    updateOrderRemark: editorOnly( async (_, args={}, { req }) => {
+    updateOrderRemark: editorOnly(async (_, args = {}, { req }) => {
       let loggedInUser = req.user;
-      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      let configId =
+        loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
       if (configId) {
         const db_base = await global.connection.useDb(configId);
-        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
-        
+        const collection_order = await db_base.model(
+          "Order",
+          OrderModel.schema,
+          "order"
+        );
+
         let updateResult = await collection_order.updateOrderSellerRemark(args);
         return updateResult;
       }
       return {
         success: false,
         message: "user config id not found",
-        data: {}
+        data: {},
       };
     }),
-    updateOrderData: editorOnly( async (_, args={}, { req }) => {
+    updateOrderData: editorOnly(async (_, args = {}, { req }) => {
       let loggedInUser = req.user;
-      let configId = loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
+      let configId =
+        loggedInUser && loggedInUser.configId ? loggedInUser.configId : null;
       if (configId) {
         const db_base = await global.connection.useDb(configId);
-        const collection_order = await db_base.model("Order",OrderModel.schema,'order');
-        
+        const collection_order = await db_base.model(
+          "Order",
+          OrderModel.schema,
+          "order"
+        );
+
         let updateResult = await collection_order.updateOrderData(args);
         return updateResult;
       }
       return {
         success: false,
         message: "user config id not found",
-        data: {}
+        data: {},
       };
-    })
-  }
-  
+    }),
+  },
 };
 
 export default resolvers;
